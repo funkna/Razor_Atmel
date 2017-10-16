@@ -87,7 +87,16 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
- 
+  LedOn(PURPLE);
+  LedOff(BLUE);
+  LedOff(CYAN);
+  LedOff(GREEN);
+  LedOff(YELLOW);
+  LedOff(ORANGE);
+  LedOff(RED);
+  
+  LedOn(WHITE);
+  
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -136,7 +145,82 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
+  static u8 u8Color = 0;
+  static u16 u16BlinkCount = 0;
+  static u8 u8Bool = 0;
+  static u8 u8ColorStep = 0;
+  static LedRateType ePWM = LED_PWM_0;
+  
+  u16BlinkCount++;
+  if(u16BlinkCount >= 40)
+  {
+    u16BlinkCount = 0;
+    
+    if(ePWM <= LEW_PWM_0)
+    {
+      u8Bool = 0;
+      u8ColorStep++;
+    }
+    if(ePWM >= LED_PWM_100)
+    {
+      u8Bool = 1;
+      u8ColorStep++;
+    }
+    
+    if(u8Bool == 0)
+      ePWM++;
+    else
+      ePWM--;
+    
+    LedPWM(WHITE, ePWM);
+    
+    if(u8ColorStep >= 2)
+    {
+      u8Color++;
+      if(u8Color >= 6)
+      {
+        u8Color = 0;
+      }
+      u8ColorStep = 0;
+    }
+    
+    
+    switch(u8ColorIndex)
+    {
+    case 0: /*purple*/
+        LedPWM(PURPLE, ePWM);
+    break;
+    case 1: /*blue*/
+        LedPWM(BLUE, ePWM);
+    break;
+    case 2: /*cyan*/
+        LedPWM(CYAN, ePWM);
+    break;
+    case 3: /*green*/
+        LedPWM(GREEN, ePWM);
+    break;
+    case 4: /*yellow*/
+        LedPWM(YELLOW, ePWM);
+    break;
+    case 5: /*orange*/
+        LedPWM(ORANGE, ePWM);
+    break;
+    case 6: /*red*/
+        LedPWM(RED, ePWM);
+    break;
+    default: /*All PWM fade*/
+      LedPWM(RED, ePWM);  
+      LedPWM(ORANGE, ePWM);
+      LedPWM(YELLOW, ePWM);
+      LedPWM(GREEN, ePWM);
+      LedPWM(CYAN, ePWM);
+      LedPWM(BLUE, ePWM);
+      LedPWM(PURPLE, ePWM);
+    break;
+    }
+  }
 
+  
 } /* end UserApp1SM_Idle() */
     
 
