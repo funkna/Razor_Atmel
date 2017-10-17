@@ -148,6 +148,7 @@ static void UserApp1SM_Idle(void)
   static u8 u8Color = 0;
   static u16 u16BlinkCount = 0;
   static u8 u8Bool = 0;
+  static u8 u8Bool_2 = 0;
   static u8 u8ColorStep = 0;
   static LedRateType ePWM = LED_PWM_0;
   
@@ -156,7 +157,7 @@ static void UserApp1SM_Idle(void)
   {
     u16BlinkCount = 0;
     
-    if(ePWM <= LEW_PWM_0)
+    if(ePWM <= LED_PWM_0)
     {
       u8Bool = 0;
       u8ColorStep++;
@@ -174,39 +175,87 @@ static void UserApp1SM_Idle(void)
     
     LedPWM(WHITE, ePWM);
     
-    if(u8ColorStep >= 2)
+    if(u8ColorStep >= 3)
     {
+      u8ColorStep = 1;
+ 
+    if(u8Bool_2 == 0)
       u8Color++;
-      if(u8Color >= 6)
-      {
-        u8Color = 0;
-      }
-      u8ColorStep = 0;
+    if(u8Bool_2 == 1)
+      u8Color--;
+    if(u8Color >= 6)
+      u8Bool_2 = 1;
+    if(u8Color <= 0)
+      u8Bool_2 = 0;
     }
+  
     
     
-    switch(u8ColorIndex)
+    
+    switch(u8Color)
     {
     case 0: /*purple*/
         LedPWM(PURPLE, ePWM);
+  LedOff(BLUE);
+  LedOff(CYAN);
+  LedOff(GREEN);
+  LedOff(YELLOW);
+  LedOff(ORANGE);
+  LedOff(RED);
     break;
     case 1: /*blue*/
         LedPWM(BLUE, ePWM);
+  LedOff(PURPLE);
+  LedOff(CYAN);
+  LedOff(GREEN);
+  LedOff(YELLOW);
+  LedOff(ORANGE);
+  LedOff(RED);      
     break;
     case 2: /*cyan*/
         LedPWM(CYAN, ePWM);
+  LedOff(PURPLE);
+  LedOff(BLUE);
+  LedOff(GREEN);
+  LedOff(YELLOW);
+  LedOff(ORANGE);
+  LedOff(RED);      
     break;
     case 3: /*green*/
         LedPWM(GREEN, ePWM);
+  LedOff(PURPLE);
+  LedOff(BLUE);
+  LedOff(CYAN);
+  LedOff(YELLOW);
+  LedOff(ORANGE);
+  LedOff(RED);      
     break;
     case 4: /*yellow*/
         LedPWM(YELLOW, ePWM);
+  LedOff(PURPLE);
+  LedOff(BLUE);
+  LedOff(CYAN);
+  LedOff(GREEN);
+  LedOff(ORANGE);
+  LedOff(RED);      
     break;
     case 5: /*orange*/
         LedPWM(ORANGE, ePWM);
+  LedOff(PURPLE);
+  LedOff(BLUE);
+  LedOff(CYAN);
+  LedOff(GREEN);
+  LedOff(YELLOW);
+  LedOff(RED);      
     break;
     case 6: /*red*/
         LedPWM(RED, ePWM);
+  LedOff(PURPLE);
+  LedOff(BLUE);
+  LedOff(CYAN);
+  LedOff(GREEN);
+  LedOff(YELLOW);
+  LedOff(ORANGE);  
     break;
     default: /*All PWM fade*/
       LedPWM(RED, ePWM);  
@@ -219,6 +268,7 @@ static void UserApp1SM_Idle(void)
     break;
     }
   }
+  
 
   
 } /* end UserApp1SM_Idle() */
