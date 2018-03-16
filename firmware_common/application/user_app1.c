@@ -52,14 +52,19 @@ extern volatile u32 G_u32ApplicationFlags;             /* From main.c */
 extern volatile u32 G_u32SystemTime1ms;                /* From board-specific source file */
 extern volatile u32 G_u32SystemTime1s;                 /* From board-specific source file */
 
+extern u32 G_u32AntApiCurrentMessageTimeStamp;                    
+extern AntApplicationMessageType G_eAntApiCurrentMessageClass;    
+extern u8 G_au8AntApiCurrentMessageBytes[ANT_APPLICATION_MESSAGE_BYTES];  
+extern AntExtendedDataType G_sAntApiCurrentMessageExtData; 
 
 /***********************************************************************************************************************
 Global variable definitions with scope limited to this local application.
 Variable names shall start with "UserApp1_" and be declared as static.
 ***********************************************************************************************************************/
 static fnCode_type UserApp1_StateMachine;            /* The state machine function pointer */
-//static u32 UserApp1_u32Timeout;                      /* Timeout counter used across states */
+static u32 UserApp1_u32Timeout;                      /* Timeout counter used across states */
 
+    AntAssignChannelInfoType sChannelInfo;
 
 /**********************************************************************************************************************
 Function Definitions
@@ -87,14 +92,44 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
- 
+  
+    LedOff(RED);
+    LedOn(ORANGE);
+    LedOff(YELLOW);
+    LedOff(GREEN);
+    LedOff(CYAN);
+    LedOff(BLUE);
+    LedOff(PURPLE);
+    LedOff(WHITE);
+    
+    sChannelInfo.AntChannel = ANT_CHANNEL_1;
+    sChannelInfo.AntChannelType = CHANNEL_TYPE_MASTER;
+    sChannelInfo.AntChannelPeriodHi = ANT_CHANNEL_PERIOD_HI_DEFAULT;
+    sChannelInfo.AntChannelPeriodLo = ANT_CHANNEL_PERIOD_LO_DEFAULT;
+    
+    sChannelInfo.AntDeviceIdHi = ANT_DEVICEID_HI_USERAPP;
+    sChannelInfo.AntDeviceIdLo = ANT_DEVICEID_LO_USERAPP;
+    sChannelInfo.AntDeviceType = ANT_DEVICE_TYPE_DEFAULT;
+    sChannelInfo.AntTransmissionType = ANT_TRANSMISSION_TYPE_DEFAULT;
+    sChannelInfo.AntFrequency = ANT_FREQUENCY_DEFAULT;
+    sChannelInfo.AntTxPower = ANT_TX_POWER_DEFAULT;
+    
+    sChannelInfo.AntNetwork = ANT_NETWORK_DEFAULT;
+    for(u8 i = 0; i < ANT_NETWORK_NUMBER_BYTES; i++)
+    {
+      sChannelInfo.AntNetworkKey[i] = ANT_DEFAULT_NETWORK_KEY;
+    }
   /* If good initialization, set state to Idle */
-  if( 1 )
+  if( AntAssignChannel(&sChannelInfo))
   {
-    UserApp1_StateMachine = UserApp1SM_Idle;
+    LedOn(YELLOW);
+    LedOff(ORANGE);
+    UserApp1_StateMachine = UserApp1SM_ANT_ChannelAssign;
   }
   else
   {
+    LedOff(ORANGE);
+    LedOn(RED);
     /* The task isn't properly initialized, so shut it down and don't run */
     UserApp1_StateMachine = UserApp1SM_Error;
   }
@@ -138,7 +173,15 @@ static void UserApp1SM_Idle(void)
 {
 
 } /* end UserApp1SM_Idle() */
-    
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+/* Wait for ??? */
+static void UserApp1SM_ANT_ChannelAssign(void)
+{
+  
+}
+
+
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Handle an error */
