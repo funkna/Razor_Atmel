@@ -262,32 +262,30 @@ static void UserApp1SM_ANT_ChannelAssign(void)
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
+  if(WasButtonPressed(BUTTON0))
+  {
+    ButtonAcknowledge(BUTTON0);
+    au8OutgoingData[0]++;
+  }
   
   if( AntReadAppMessageBuffer() )
   {
+    au8IncomingData[0] = G_au8AntApiCurrentMessageBytes[0];
      /* New message from ANT task: check what it is */
     if(G_eAntApiCurrentMessageClass == ANT_DATA)
     {
+      
       au8PrintChar[0] = 48 + au8IncomingData[0];
     /* * * * DEAL WITH THE ANT DATA * * * */
       LCDMessage(LINE2_START_ADDR, au8PrintChar);
     }
     else if(G_eAntApiCurrentMessageClass == ANT_TICK)
     {
-
-      au8IncomingData[0]++;
-      if(au8IncomingData[0] == 0)
-      {
-        au8IncomingData[1]++;
-        if(au8IncomingData[1] == 0)
-        {
-          au8IncomingData[2]++;
-        }
-      }
-      AntQueueBroadcastMessage(ANT_CHANNEL_USERAPP, au8OutgoingData);
-    } /* end AntReadAppMessageBuffer() */
-  } 
-}
+      
+    }
+    AntQueueBroadcastMessage(ANT_CHANNEL_USERAPP, au8OutgoingData);
+  } /* end AntReadAppMessageBuffer() */
+} 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Handle an error */
 static void UserApp1SM_Error(void)          
