@@ -71,6 +71,8 @@ AntAssignChannelInfoType sChannelInfo;
 static u8 au8IncomingData[] = {0,0,0,0,0,0,0,0};
 static u8 au8OutgoingData[] = {0,0,0,0,0,0,0,0};
 
+static u8 u8GameVal = 0;
+
 static u8 au8PrintChar[1] = {0};
 /**********************************************************************************************************************
 Function Definitions
@@ -225,6 +227,7 @@ static void UserApp1SM_ANT_Init(void)
   {
     CLEAR_ALL();
     LedOff(ORANGE);
+    LCDMessage(0x00, "Press b0");
     UserApp1_StateMachine = UserApp1SM_ANT_ChannelAssign;
   }
   else
@@ -242,8 +245,9 @@ static void UserApp1SM_ANT_Init(void)
 static void UserApp1SM_ANT_ChannelAssign(void)
 {
   UserApp1_u32Timeout++;
-  if(AntRadioStatusChannel(ANT_CHANNEL_USERAPP) == ANT_CONFIGURED)
+  if((AntRadioStatusChannel(ANT_CHANNEL_USERAPP) == ANT_CONFIGURED) && WasButtonPressed(BUTTON0))
   {
+    ButtonAcknowledge(BUTTON0);
     CLEAR_ALL();
     LedOn(GREEN);
     AntOpenChannelNumber(ANT_CHANNEL_USERAPP);
@@ -267,6 +271,23 @@ static void UserApp1SM_Idle(void)
     ButtonAcknowledge(BUTTON0);
     au8OutgoingData[0]++;
   }
+  if(WasButtonPressed(BUTTON1))
+  {
+    ButtonAcknowledge(BUTTON1);
+    au8OutgoingData[0]-=3;
+  }
+  if(WasButtonPressed(BUTTON2))
+  {
+    ButtonAcknowledge(BUTTON2);
+    au8OutgoingData[0] /= 2;
+  }
+  if(WasButtonPressed(BUTTON3))
+  {
+    ButtonAcknowledge(BUTTON3);
+    au8OutgoingData[0] *= 2;
+  }
+  
+  
   
   if( AntReadAppMessageBuffer() )
   {
@@ -274,10 +295,11 @@ static void UserApp1SM_Idle(void)
      /* New message from ANT task: check what it is */
     if(G_eAntApiCurrentMessageClass == ANT_DATA)
     {
-      
       au8PrintChar[0] = 48 + au8IncomingData[0];
-    /* * * * DEAL WITH THE ANT DATA * * * */
-      LCDMessage(LINE2_START_ADDR, au8PrintChar);
+      /* * * * DEAL WITH THE ANT DATA * * * */
+      LCDMessage(0x00, "Current Value:");
+      LCDMessage(0x11, au8PrintChar);
+      LCDMessage(LINE2_START_ADDR, "+1  -3   x2   /2");
     }
     else if(G_eAntApiCurrentMessageClass == ANT_TICK)
     {
