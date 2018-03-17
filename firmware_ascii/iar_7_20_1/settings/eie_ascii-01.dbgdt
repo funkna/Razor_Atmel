@@ -106,7 +106,7 @@
         <expressions>
           
           
-        <item>G_u32SystemTime1ms</item><item>sChannelInfo</item><item></item></expressions>
+        <item>G_u32SystemTime1ms</item><item>sChannelInfo</item><item/></expressions>
         <col-names>
           
           
