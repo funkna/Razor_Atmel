@@ -123,8 +123,8 @@ void UserApp1Initialize(void)
     
     LCDCommand(LCD_CLEAR_CMD);
     
-    LCDMessage(LINE1_START_ADDR, "Press B0 to generate #");
-    LCDMessage(LINE2_START_ADDR, "Press B3 to wait for #");
+    LCDMessage(LINE1_START_ADDR, "Press B0 to gen #");
+    LCDMessage(LINE2_START_ADDR, "Press B3 to wait");
     
     LedBlink(YELLOW, LED_2HZ);
     UserApp1_StateMachine = UserApp1SM_Gen_or_Wait;
@@ -205,7 +205,7 @@ static void UserApp1SM_Gen_or_Wait(void)
     
     UserApp1_StateMachine = UserApp1SM_ANT_Init;
   }
-  
+  //timeout condition
   if(0)
   {
     UserApp1_u32Timeout = 0;
