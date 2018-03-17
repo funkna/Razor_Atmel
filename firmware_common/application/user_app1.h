@@ -30,7 +30,7 @@ Constants / Definitions
 **********************************************************************************************************************/
 /* Required constants for ANT channel configuration */
 #define ANT_CHANNEL_TYPE_USERAPP        CHANNEL_TYPE_MASTER   // Device is a MASTER
-#define ANT_CHANNEL_USERAPP             ANT_CHANNEL_1         // Channel 0 - 7
+#define ANT_CHANNEL_USERAPP             ANT_CHANNEL_0         // Channel 0 - 7
 #define ANT_CHANNEL_PERIOD_LO_USERAPP   (u8)0x00              // LO; 0x0001 - 0x7fff
 #define ANT_CHANNEL_PERIOD_HI_USERAPP   (u8)0x20              // HI; 0x0001 - 0x7fff
 #define ANT_DEVICEID_LO_USERAPP         (u8)0xF0              // Device # Low byte
@@ -60,14 +60,18 @@ void UserApp1RunActiveState(void);
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Private functions                                                                                                  */
 /*--------------------------------------------------------------------------------------------------------------------*/
-
-
+static void Led_OFF(void);
+static void CLEAR_ALL(void);
 /***********************************************************************************************************************
 State Machine Declarations
 ***********************************************************************************************************************/
 static void UserApp1SM_Idle(void);    
 
 static void UserApp1SM_ANT_ChannelAssign(void);
+
+static void UserApp1SM_Gen_or_Wait(void);
+
+static void UserApp1SM_ANT_Init(void);
 
 static void UserApp1SM_Error(void);         
 

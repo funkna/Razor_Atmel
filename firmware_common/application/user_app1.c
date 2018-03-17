@@ -55,17 +55,23 @@ extern volatile u32 G_u32SystemTime1s;                 /* From board-specific so
 extern u32 G_u32AntApiCurrentMessageTimeStamp;                    
 extern AntApplicationMessageType G_eAntApiCurrentMessageClass;    
 extern u8 G_au8AntApiCurrentMessageBytes[ANT_APPLICATION_MESSAGE_BYTES];  
-extern AntExtendedDataType G_sAntApiCurrentMessageExtData; 
+extern AntExtendedDataType G_sAntApiCurrentMessageExtData;  
+
+
 
 /***********************************************************************************************************************
 Global variable definitions with scope limited to this local application.
 Variable names shall start with "UserApp1_" and be declared as static.
 ***********************************************************************************************************************/
 static fnCode_type UserApp1_StateMachine;            /* The state machine function pointer */
-static u32 UserApp1_u32Timeout;                      /* Timeout counter used across states */
+static u32 UserApp1_u32Timeout = 0;                      /* Timeout counter used across states */
 
-    AntAssignChannelInfoType sChannelInfo;
+AntAssignChannelInfoType sChannelInfo;
 
+static u8 au8IncomingData[] = {0,0,0,0,0,0,0,0};
+static u8 au8OutgoingData[] = {0,0,0,0,0,0,0,0};
+
+static u8 au8PrintChar[1] = {0};
 /**********************************************************************************************************************
 Function Definitions
 **********************************************************************************************************************/
@@ -92,47 +98,37 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
-  
-    LedOff(RED);
-    LedOn(ORANGE);
-    LedOff(YELLOW);
-    LedOff(GREEN);
-    LedOff(CYAN);
-    LedOff(BLUE);
-    LedOff(PURPLE);
-    LedOff(WHITE);
+    Led_OFF();
     
-    sChannelInfo.AntChannel = ANT_CHANNEL_1;
-    sChannelInfo.AntChannelType = CHANNEL_TYPE_MASTER;
-    sChannelInfo.AntChannelPeriodHi = ANT_CHANNEL_PERIOD_HI_DEFAULT;
-    sChannelInfo.AntChannelPeriodLo = ANT_CHANNEL_PERIOD_LO_DEFAULT;
+     /* Configure ANT for this application */
     
-    sChannelInfo.AntDeviceIdHi = ANT_DEVICEID_HI_USERAPP;
-    sChannelInfo.AntDeviceIdLo = ANT_DEVICEID_LO_USERAPP;
-    sChannelInfo.AntDeviceType = ANT_DEVICE_TYPE_DEFAULT;
-    sChannelInfo.AntTransmissionType = ANT_TRANSMISSION_TYPE_DEFAULT;
-    sChannelInfo.AntFrequency = ANT_FREQUENCY_DEFAULT;
-    sChannelInfo.AntTxPower = ANT_TX_POWER_DEFAULT;
+    //sChannelInfo.AntChannelType = ANT_CHANNEL_TYPE_USERAPP;
     
+    sChannelInfo.AntChannel          = ANT_CHANNEL_USERAPP;
+    sChannelInfo.AntChannelPeriodLo  = ANT_CHANNEL_PERIOD_LO_USERAPP;
+    sChannelInfo.AntChannelPeriodHi  = ANT_CHANNEL_PERIOD_HI_USERAPP;
+    sChannelInfo.AntDeviceIdLo       = ANT_DEVICEID_LO_USERAPP;
+    sChannelInfo.AntDeviceIdHi       = ANT_DEVICEID_HI_USERAPP;
+    sChannelInfo.AntDeviceType       = ANT_DEVICE_TYPE_USERAPP;
+    sChannelInfo.AntTransmissionType = ANT_TRANSMISSION_TYPE_USERAPP;
+    sChannelInfo.AntFrequency        = ANT_FREQUENCY_USERAPP;
+    sChannelInfo.AntTxPower          = ANT_TX_POWER_USERAPP;
+
     sChannelInfo.AntNetwork = ANT_NETWORK_DEFAULT;
+    
     for(u8 i = 0; i < ANT_NETWORK_NUMBER_BYTES; i++)
     {
       sChannelInfo.AntNetworkKey[i] = ANT_DEFAULT_NETWORK_KEY;
     }
-  /* If good initialization, set state to Idle */
-  if( AntAssignChannel(&sChannelInfo))
-  {
-    LedOn(YELLOW);
-    LedOff(ORANGE);
-    UserApp1_StateMachine = UserApp1SM_ANT_ChannelAssign;
-  }
-  else
-  {
-    LedOff(ORANGE);
-    LedOn(RED);
-    /* The task isn't properly initialized, so shut it down and don't run */
-    UserApp1_StateMachine = UserApp1SM_Error;
-  }
+    
+    LCDCommand(LCD_CLEAR_CMD);
+    
+    LCDMessage(LINE1_START_ADDR, "Press B0 to generate #");
+    LCDMessage(LINE2_START_ADDR, "Press B3 to wait for #");
+    
+    LedBlink(YELLOW, LED_2HZ);
+    UserApp1_StateMachine = UserApp1SM_Gen_or_Wait;
+    //UserApp1_StateMachine = UserApp1SM_ANT_Init;
 
 } /* end UserApp1Initialize() */
 
@@ -161,28 +157,137 @@ void UserApp1RunActiveState(void)
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Private functions                                                                                                  */
 /*--------------------------------------------------------------------------------------------------------------------*/
+static void Led_OFF(void)
+{
+  LedOff(RED);
+  LedOff(ORANGE);
+  LedOff(YELLOW);
+  LedOff(GREEN);
+  LedOff(CYAN);
+  LedOff(BLUE);
+  LedOff(PURPLE);
+  LedOff(WHITE);
+}
 
-
+static void CLEAR_ALL(void)
+{
+  Led_OFF();
+  LCDCommand(LCD_CLEAR_CMD);
+}
 /**********************************************************************************************************************
 State Machine Function Definitions
 **********************************************************************************************************************/
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Wait for ??? */
-static void UserApp1SM_Idle(void)
+static void UserApp1SM_Gen_or_Wait(void)
 {
+  UserApp1_u32Timeout++;
+  if(WasButtonPressed(BUTTON0))
+  {
+    CLEAR_ALL();
+    ButtonAcknowledge(BUTTON0);
+    UserApp1_u32Timeout = 0;
+    LedOn(CYAN);
+    au8OutgoingData[0] = 0;
+    sChannelInfo.AntChannelType = CHANNEL_TYPE_MASTER;
 
-} /* end UserApp1SM_Idle() */
+    UserApp1_StateMachine = UserApp1SM_ANT_Init;
+  }
+  if(WasButtonPressed(BUTTON3))
+  {
+    CLEAR_ALL();
+    ButtonAcknowledge(BUTTON3);
+    UserApp1_u32Timeout = 0;
+    LedOn(PURPLE);
+    au8OutgoingData[0] = 9;
+    sChannelInfo.AntChannelType = CHANNEL_TYPE_SLAVE;
+    
+    UserApp1_StateMachine = UserApp1SM_ANT_Init;
+  }
+  
+  if(0)
+  {
+    UserApp1_u32Timeout = 0;
+    LedOn(RED);
+    UserApp1_StateMachine = UserApp1SM_Error;
+  }
+} /* end UserApp1SM_M_or_S() */
+
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+/* Wait for ??? */
+static void UserApp1SM_ANT_Init(void)
+{  
+
+  /* If good initialization, set state to Idle */
+  if( AntAssignChannel(&sChannelInfo))
+  {
+    CLEAR_ALL();
+    LedOff(ORANGE);
+    UserApp1_StateMachine = UserApp1SM_ANT_ChannelAssign;
+  }
+  else
+  {
+    CLEAR_ALL();
+    LCDMessage(0x00, "Failed to Init");
+    LedOn(RED);
+    /* The task isn't properly initialized, so shut it down and don't run */
+    UserApp1_StateMachine = UserApp1SM_Error;
+  }
+}
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Wait for ??? */
 static void UserApp1SM_ANT_ChannelAssign(void)
 {
-  
+  UserApp1_u32Timeout++;
+  if(AntRadioStatusChannel(ANT_CHANNEL_USERAPP) == ANT_CONFIGURED)
+  {
+    CLEAR_ALL();
+    LedOn(GREEN);
+    AntOpenChannelNumber(ANT_CHANNEL_USERAPP);
+    UserApp1_StateMachine = UserApp1SM_Idle;
+  }
+  if(UserApp1_u32Timeout == 5000)
+  {
+    CLEAR_ALL();
+    LCDMessage(0x00, "Failed to Config");
+    LedOn(RED);
+    UserApp1_StateMachine = UserApp1SM_Error;
+  }
 }
 
+/*-------------------------------------------------------------------------------------------------------------------*/
+/* Wait for ??? */
+static void UserApp1SM_Idle(void)
+{
+  
+  if( AntReadAppMessageBuffer() )
+  {
+     /* New message from ANT task: check what it is */
+    if(G_eAntApiCurrentMessageClass == ANT_DATA)
+    {
+      au8PrintChar[0] = 48 + au8IncomingData[0];
+    /* * * * DEAL WITH THE ANT DATA * * * */
+      LCDMessage(LINE2_START_ADDR, au8PrintChar);
+    }
+    else if(G_eAntApiCurrentMessageClass == ANT_TICK)
+    {
 
-
+      au8IncomingData[0]++;
+      if(au8IncomingData[0] == 0)
+      {
+        au8IncomingData[1]++;
+        if(au8IncomingData[1] == 0)
+        {
+          au8IncomingData[2]++;
+        }
+      }
+      AntQueueBroadcastMessage(ANT_CHANNEL_USERAPP, au8OutgoingData);
+    } /* end AntReadAppMessageBuffer() */
+  } 
+}
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Handle an error */
 static void UserApp1SM_Error(void)          
