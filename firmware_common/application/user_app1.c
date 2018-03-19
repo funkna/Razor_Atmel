@@ -72,8 +72,10 @@ static u8 au8IncomingData[] = {0,0,0,0,0,0,0,0};
 static u8 au8OutgoingData[] = {0,0,0,0,0,0,0,0};
 
 static u8 u8GameVal = 0;
+static u32 u32MsgLossCount = 0;
+static bool bTurn;
 
-static u8 au8PrintChar[1] = {0};
+static u8 au8PrintChar[5] = "     ";
 /**********************************************************************************************************************
 Function Definitions
 **********************************************************************************************************************/
@@ -173,8 +175,23 @@ static void Led_OFF(void)
 
 static void CLEAR_ALL(void)
 {
-  Led_OFF();
   LCDCommand(LCD_CLEAR_CMD);
+  UserApp1_u32Timeout = 0;
+  Led_OFF();
+}
+
+static void DISPLAY_EDIT(void)
+{
+  au8PrintChar[0] = 48 + u8GameVal;
+  LCDMessage(0x00, "Current Value:");
+  LCDMessage(0x11, au8PrintChar);
+  LCDMessage(LINE2_START_ADDR, "+1    -3    x2    /2");
+}
+
+static void DISPLAY_WAIT(void)
+{
+  LCDMessage(0x00, "Waiting...");
+  LCDMessage(LINE2_START_ADDR, "It's not ur turn");
 }
 /**********************************************************************************************************************
 State Machine Function Definitions
@@ -189,22 +206,18 @@ static void UserApp1SM_Gen_or_Wait(void)
   {
     CLEAR_ALL();
     ButtonAcknowledge(BUTTON0);
-    UserApp1_u32Timeout = 0;
-    LedOn(CYAN);
-    au8OutgoingData[0] = 0;
+    u8GameVal = 7;
     sChannelInfo.AntChannelType = CHANNEL_TYPE_MASTER;
-
+    bTurn = TRUE;
     UserApp1_StateMachine = UserApp1SM_ANT_Init;
   }
   if(WasButtonPressed(BUTTON3))
   {
     CLEAR_ALL();
     ButtonAcknowledge(BUTTON3);
-    UserApp1_u32Timeout = 0;
-    LedOn(PURPLE);
-    au8OutgoingData[0] = 9;
-    sChannelInfo.AntChannelType = CHANNEL_TYPE_SLAVE;
     
+    sChannelInfo.AntChannelType = CHANNEL_TYPE_SLAVE;
+    bTurn = FALSE;
     UserApp1_StateMachine = UserApp1SM_ANT_Init;
   }
   //timeout condition
@@ -226,8 +239,6 @@ static void UserApp1SM_ANT_Init(void)
   if( AntAssignChannel(&sChannelInfo))
   {
     CLEAR_ALL();
-    LedOff(ORANGE);
-    LCDMessage(0x00, "Press b0");
     UserApp1_StateMachine = UserApp1SM_ANT_ChannelAssign;
   }
   else
@@ -245,12 +256,12 @@ static void UserApp1SM_ANT_Init(void)
 static void UserApp1SM_ANT_ChannelAssign(void)
 {
   UserApp1_u32Timeout++;
-  if((AntRadioStatusChannel(ANT_CHANNEL_USERAPP) == ANT_CONFIGURED) && WasButtonPressed(BUTTON0))
+  if(AntRadioStatusChannel(ANT_CHANNEL_USERAPP) == ANT_CONFIGURED)
   {
-    ButtonAcknowledge(BUTTON0);
     CLEAR_ALL();
     LedOn(GREEN);
     AntOpenChannelNumber(ANT_CHANNEL_USERAPP);
+    DISPLAY_EDIT();
     UserApp1_StateMachine = UserApp1SM_Idle;
   }
   if(UserApp1_u32Timeout == 5000)
@@ -266,47 +277,81 @@ static void UserApp1SM_ANT_ChannelAssign(void)
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
-  if(WasButtonPressed(BUTTON0))
+  if( bTurn )
   {
-    ButtonAcknowledge(BUTTON0);
-    au8OutgoingData[0]++;
+    if(WasButtonPressed(BUTTON0))
+    {
+      ButtonAcknowledge(BUTTON0);
+      u8GameVal++;
+      au8OutgoingData[0] = u8GameVal;
+      bTurn = FALSE;
+      DISPLAY_WAIT();
+    }
+    if(WasButtonPressed(BUTTON1))
+    {
+      ButtonAcknowledge(BUTTON1);
+      u8GameVal -= 3;
+      au8OutgoingData[0] = u8GameVal;
+      bTurn = FALSE;
+      DISPLAY_WAIT();
+    }
+    if(WasButtonPressed(BUTTON2))
+    {
+      ButtonAcknowledge(BUTTON2);
+      u8GameVal *= 2;
+      au8OutgoingData[0] = u8GameVal;
+      bTurn = FALSE;
+      DISPLAY_WAIT();
+    }
+    if(WasButtonPressed(BUTTON3))
+    {
+      ButtonAcknowledge(BUTTON3);
+      u8GameVal /= 2;
+      au8OutgoingData[0] = u8GameVal;
+      bTurn = FALSE;
+      DISPLAY_WAIT();
+    }
   }
-  if(WasButtonPressed(BUTTON1))
-  {
-    ButtonAcknowledge(BUTTON1);
-    au8OutgoingData[0]-=3;
-  }
-  if(WasButtonPressed(BUTTON2))
-  {
-    ButtonAcknowledge(BUTTON2);
-    au8OutgoingData[0] /= 2;
-  }
-  if(WasButtonPressed(BUTTON3))
-  {
-    ButtonAcknowledge(BUTTON3);
-    au8OutgoingData[0] *= 2;
-  }
-  
   
   
   if( AntReadAppMessageBuffer() )
   {
+    u32MsgLossCount = 0;
     au8IncomingData[0] = G_au8AntApiCurrentMessageBytes[0];
-     /* New message from ANT task: check what it is */
+
     if(G_eAntApiCurrentMessageClass == ANT_DATA)
     {
-      au8PrintChar[0] = 48 + au8IncomingData[0];
-      /* * * * DEAL WITH THE ANT DATA * * * */
-      LCDMessage(0x00, "Current Value:");
-      LCDMessage(0x11, au8PrintChar);
-      LCDMessage(LINE2_START_ADDR, "+1  -3   x2   /2");
+      
+      if(au8IncomingData[0] != u8GameVal)
+      {
+        u8GameVal = au8IncomingData[0];
+        bTurn = TRUE;
+      }
+      if(bTurn)
+      {
+        DISPLAY_EDIT();
+      }
+      else
+      {
+        DISPLAY_WAIT();
+      }
     }
     else if(G_eAntApiCurrentMessageClass == ANT_TICK)
-    {
-      
-    }
+    { }
     AntQueueBroadcastMessage(ANT_CHANNEL_USERAPP, au8OutgoingData);
-  } /* end AntReadAppMessageBuffer() */
+  }
+  else
+  {
+    u32MsgLossCount++;
+  }
+  
+  
+  
+  if(u32MsgLossCount == 10000)
+  {
+    LedOn(RED);
+    UserApp1_StateMachine = UserApp1SM_Error;
+  }
 } 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Handle an error */
