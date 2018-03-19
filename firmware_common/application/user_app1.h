@@ -64,6 +64,10 @@ static void Led_OFF(void);
 static void CLEAR_ALL(void);
 static void DISPLAY_EDIT(void);
 static void DISPLAY_WAIT(void);
+
+static void RNG(void);
+
+static void ANT_INIT(void);
 /***********************************************************************************************************************
 State Machine Declarations
 ***********************************************************************************************************************/
