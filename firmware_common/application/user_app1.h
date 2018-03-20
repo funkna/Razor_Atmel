@@ -81,7 +81,7 @@ static void ANT_SLAVE_CONFIG(void);
 /***********************************************************************************************************************
 State Machine Declarations
 ***********************************************************************************************************************/
-static void UserApp1SM_Idle(void);    
+static void UserApp1SM_Game_State(void);    
 
 static void UserApp1SM_ANT_ChannelAssign(void);
 

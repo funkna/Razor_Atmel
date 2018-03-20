@@ -380,7 +380,7 @@ static void ANT_MASTER_CONFIG(void)
       LedOff(YELLOW);
       LedOn(GREEN);
       AntOpenChannelNumber(ANT_CHANNEL_USERAPP);
-      UserApp1_StateMachine = UserApp1SM_Idle;
+      UserApp1_StateMachine = UserApp1SM_Game_State;
     }
   }
 }
@@ -394,10 +394,8 @@ static void ANT_SLAVE_CONFIG(void)
     UserApp1_StateMachine = UserApp1SM_ANT_ChannelAssign;
     if(AntRadioStatusChannel(ANT_CHANNEL_USERAPP) == ANT_CONFIGURED)
     {
-      LedOff(YELLOW);
-      LedOn(GREEN);
       AntOpenChannelNumber(ANT_CHANNEL_USERAPP);
-      UserApp1_StateMachine = UserApp1SM_Idle;
+      UserApp1_StateMachine = UserApp1SM_Game_State;
     }
   }
 }
@@ -415,21 +413,17 @@ static void UserApp1SM_Gen_or_Wait(void)
     ButtonAcknowledge(BUTTON0);
     CLEAR_ALL();
     RNG();
-    
     bTurn = TRUE;
     DISPLAY_EDIT();
     ANT_MASTER_CONFIG();
-    //UserApp1_StateMachine = UserApp1SM_ANT_Init;
   }
   if(WasButtonPressed(BUTTON3))
   {
     ButtonAcknowledge(BUTTON3);
     CLEAR_ALL();
-    
     bTurn = FALSE;
     DISPLAY_WAIT();
     ANT_SLAVE_CONFIG();
-    //UserApp1_StateMachine = UserApp1SM_ANT_Init;
   }
   if(UserApp1_u32Timeout == 600000)
   {
@@ -469,7 +463,7 @@ static void UserApp1SM_ANT_ChannelAssign(void)
     LedOff(YELLOW);
     LedOn(GREEN);
     AntOpenChannelNumber(ANT_CHANNEL_USERAPP);
-    UserApp1_StateMachine = UserApp1SM_Idle;
+    UserApp1_StateMachine = UserApp1SM_Game_State;
   }
   if(UserApp1_u32Timeout == 5000)
   {
@@ -483,7 +477,7 @@ static void UserApp1SM_ANT_ChannelAssign(void)
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Wait for ANT Config */
-static void UserApp1SM_Idle(void)
+static void UserApp1SM_Game_State(void)
 {
   OPERATIONS();
   
