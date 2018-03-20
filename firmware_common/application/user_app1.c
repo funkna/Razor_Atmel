@@ -374,6 +374,7 @@ static void ANT_MASTER_CONFIG(void)
   sChannelInfo.AntChannelType = CHANNEL_TYPE_MASTER;
   if(AntAssignChannel(&sChannelInfo))
   {
+    UserApp1_u32Timeout++;
     UserApp1_StateMachine = UserApp1SM_ANT_ChannelAssign;
     if(AntRadioStatusChannel(ANT_CHANNEL_USERAPP) == ANT_CONFIGURED)
     {
@@ -382,6 +383,22 @@ static void ANT_MASTER_CONFIG(void)
       AntOpenChannelNumber(ANT_CHANNEL_USERAPP);
       UserApp1_StateMachine = UserApp1SM_Game_State;
     }
+    if(UserApp1_u32Timeout == 5000)
+    {
+      CLEAR_ALL();
+      LCDMessage(LINE1_START_ADDR, au8ANTFailConfig);
+      LCDMessage(LINE2_START_ADDR, au8ErrorReset);
+      LedOn(RED);
+      UserApp1_StateMachine = UserApp1SM_Error;
+    }
+  }
+  else
+  {
+    CLEAR_ALL();
+    LCDMessage(LINE1_START_ADDR, au8ANTFailInit);
+    LCDMessage(LINE2_START_ADDR, au8ErrorReset);
+    LedOn(RED);
+    UserApp1_StateMachine = UserApp1SM_Error;
   }
 }
 
@@ -391,12 +408,29 @@ static void ANT_SLAVE_CONFIG(void)
   sChannelInfo.AntChannelType = CHANNEL_TYPE_SLAVE;
   if(AntAssignChannel(&sChannelInfo))
   {
+    UserApp1_u32Timeout++;
     UserApp1_StateMachine = UserApp1SM_ANT_ChannelAssign;
     if(AntRadioStatusChannel(ANT_CHANNEL_USERAPP) == ANT_CONFIGURED)
     {
       AntOpenChannelNumber(ANT_CHANNEL_USERAPP);
       UserApp1_StateMachine = UserApp1SM_Game_State;
     }
+    if(UserApp1_u32Timeout == 5000)
+    {
+      CLEAR_ALL();
+      LCDMessage(LINE1_START_ADDR, au8ANTFailConfig);
+      LCDMessage(LINE2_START_ADDR, au8ErrorReset);
+      LedOn(RED);
+      UserApp1_StateMachine = UserApp1SM_Error;
+    }
+  }
+  else
+  {
+    CLEAR_ALL();
+    LCDMessage(LINE1_START_ADDR, au8ANTFailInit);
+    LCDMessage(LINE2_START_ADDR, au8ErrorReset);
+    LedOn(RED);
+    UserApp1_StateMachine = UserApp1SM_Error;
   }
 }
 /**********************************************************************************************************************
@@ -434,30 +468,11 @@ static void UserApp1SM_Gen_or_Wait(void)
   }
 } /* end UserApp1SM_Gen_or_Wait() */
 
-
-/*-------------------------------------------------------------------------------------------------------------------*/
-/* Wait for User Interaction */
-static void UserApp1SM_ANT_Init(void)
-{
-  if( AntAssignChannel(&sChannelInfo))
-  {
-    UserApp1_StateMachine = UserApp1SM_ANT_ChannelAssign;
-  }
-  else
-  {
-    CLEAR_ALL();
-    LCDMessage(LINE1_START_ADDR, au8ANTFailInit);
-    LCDMessage(LINE2_START_ADDR, au8ErrorReset);
-    LedOn(RED);
-    UserApp1_StateMachine = UserApp1SM_Error;
-  }
-} /* end UserApp1SM_Init() */
-
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Wait for ANT_INIT() */
 static void UserApp1SM_ANT_ChannelAssign(void)
 {
-  UserApp1_u32Timeout++;
+  
   if(AntRadioStatusChannel(ANT_CHANNEL_USERAPP) == ANT_CONFIGURED)
   {
     LedOff(YELLOW);
@@ -465,6 +480,7 @@ static void UserApp1SM_ANT_ChannelAssign(void)
     AntOpenChannelNumber(ANT_CHANNEL_USERAPP);
     UserApp1_StateMachine = UserApp1SM_Game_State;
   }
+  UserApp1_u32Timeout++;
   if(UserApp1_u32Timeout == 5000)
   {
     CLEAR_ALL();
@@ -548,7 +564,7 @@ static void UserApp1SM_Lose(void)
   if(bTurn)
   {
     //UPDATE LASTDATA AND RECENT DATA to incoming data
-      //When GameVal is changed, update RECENTDATA and bTurn = False
+    //When GameVal is changed, update RECENTDATA and bTurn = False
   }
   if(!bTurn && (au8IncomingData[0] != u8RecentData))
   {

@@ -87,7 +87,7 @@ static void UserApp1SM_ANT_ChannelAssign(void);
 
 static void UserApp1SM_Gen_or_Wait(void);
 
-static void UserApp1SM_ANT_Init(void);
+//static void UserApp1SM_ANT_Init(void);
 
 static void UserApp1SM_Error(void);         
 
