@@ -29,7 +29,6 @@ Type Definitions
 Constants / Definitions
 **********************************************************************************************************************/
 /* Required constants for ANT channel configuration */
-#define ANT_CHANNEL_TYPE_USERAPP        CHANNEL_TYPE_MASTER   // Device is a MASTER
 #define ANT_CHANNEL_USERAPP             ANT_CHANNEL_0         // Channel 0 - 7
 #define ANT_CHANNEL_PERIOD_LO_USERAPP   (u8)0x00              // LO; 0x0001 - 0x7fff
 #define ANT_CHANNEL_PERIOD_HI_USERAPP   (u8)0x20              // HI; 0x0001 - 0x7fff
@@ -60,13 +59,22 @@ void UserApp1RunActiveState(void);
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Private functions                                                                                                  */
 /*--------------------------------------------------------------------------------------------------------------------*/
-static void Led_OFF(void);
+//Functions to make life easy
+static void LED_OFF(void);
 static void CLEAR_ALL(void);
 static void DISPLAY_EDIT(void);
 static void DISPLAY_WAIT(void);
-
+static void BUTTON_ACK_ALL(void);
+//Functions that make the game playable
 static void RNG(void);
-
+static void OPERATIONS(void);
+static void GV_ADD(void);
+static void GV_SUB(void);
+static void GV_MULT(void);
+static void GV_DIV(void);
+//static void CHECK_GAME_STATE(void);
+//static void COUNTDOWN(void);
+//Functions that make ANT suck less
 static void ANT_INIT(void);
 /***********************************************************************************************************************
 State Machine Declarations

@@ -1,6 +1,6 @@
 /**********************************************************************************************************************
 File: user_app1.c                                                                
-
+/*************HOT POTATO MATH GAME*************************************************************************************
 ----------------------------------------------------------------------------------------------------------------------
 To start a new task using this user_app1 as a template:
  1. Copy both user_app1.c and user_app1.h to the Application directory
@@ -68,15 +68,32 @@ static u32 UserApp1_u32Timeout = 0;                      /* Timeout counter used
 
 AntAssignChannelInfoType sChannelInfo;
 
+
+
+//Variables to keep track of ANT messages
 static u8 au8IncomingData[] = {0,0,0,0,0,0,0,0};
 static u8 au8OutgoingData[] = {0,0,0,0,0,0,0,0};
-
 static u8 u8GameVal = 0;
 static u8 u8RecentData = 0;
 static u8 u8LastData = 0;
 static bool bTurn;
 
-static u8 au8PrintChar[5] = "     ";
+
+
+//Strings to print on the LCD 
+//Max string length is:             "                    "
+static u8 au8Instruction_1[]      = "Press B0 to go 1st";
+static u8 au8Instruction_2[]      = "Press B3 to go 2nd";
+static u8 au8Operations[]         = "+1    -3    x2    /2";
+static u8 au8Disp_Val[]           = "Current Value:";
+static u8 au8GameValChar[]        = "    ";
+static u8 au8Wait_1[]             = "Waiting...";
+static u8 au8Wait_2[]             = "It's not your turn.";
+static u8 au8ANTFailConfig[]      = "Failed to Config ANT";
+static u8 au8ANTFailInit[]        = "Failed to Initialize";
+static u8 au8ErrorReset[]         = "Reset your board";
+static u8 au8GenericError[]       = "Something went wrong";
+
 /**********************************************************************************************************************
 Function Definitions
 **********************************************************************************************************************/
@@ -105,11 +122,8 @@ void UserApp1Initialize(void)
 {
     CLEAR_ALL();
     
-     /* Configure ANT for this application */
-    ANT_INIT();
-    
-    LCDMessage(LINE1_START_ADDR, "Press B0 to gen #");
-    LCDMessage(LINE2_START_ADDR, "Press B3 to wait");
+    LCDMessage(LINE1_START_ADDR, au8Instruction_1);
+    LCDMessage(LINE2_START_ADDR, au8Instruction_2);
     LedBlink(YELLOW, LED_2HZ);
     
     UserApp1_StateMachine = UserApp1SM_Gen_or_Wait;
@@ -140,7 +154,9 @@ void UserApp1RunActiveState(void)
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Private functions                                                                                                  */
 /*--------------------------------------------------------------------------------------------------------------------*/
-static void Led_OFF(void)
+
+/* QoL FUNCTIONS */
+static void LED_OFF(void)
 {
   LedOff(RED);
   LedOff(ORANGE);
@@ -156,28 +172,157 @@ static void CLEAR_ALL(void)
 {
   LCDCommand(LCD_CLEAR_CMD);
   UserApp1_u32Timeout = 0;
-  Led_OFF();
+  LED_OFF();
 }
 
 static void DISPLAY_EDIT(void)
 {
   LCDCommand(LCD_CLEAR_CMD);
-  au8PrintChar[0] = 48 + u8GameVal;
-  LCDMessage(LINE1_START_ADDR, "Current Value:");
-  LCDMessage(0x11, au8PrintChar);
-  LCDMessage(LINE2_START_ADDR, "+1    -3    x2    /2");
+  au8GameValChar[0] = 48 + u8GameVal;
+  LCDMessage(LINE1_START_ADDR, au8Disp_Val);
+  LCDMessage(0x11, au8GameValChar);
+  LCDMessage(LINE2_START_ADDR, au8Operations);
 }
 
 static void DISPLAY_WAIT(void)
 {
   LCDCommand(LCD_CLEAR_CMD);
-  LCDMessage(LINE1_START_ADDR, "Waiting...");
-  LCDMessage(LINE2_START_ADDR, "Not your turn.");
+  LCDMessage(LINE1_START_ADDR, au8Wait_1);
+  LCDMessage(LINE2_START_ADDR, au8Wait_2);
 }
+
+static void BUTTON_ACK_ALL(void)
+{
+  if(WasButtonPressed(BUTTON0))
+  {
+    ButtonAcknowledge(BUTTON0);
+  }
+  if(WasButtonPressed(BUTTON1))
+  {
+    ButtonAcknowledge(BUTTON1);
+  }
+  if(WasButtonPressed(BUTTON2))
+  {
+    ButtonAcknowledge(BUTTON2);
+  }
+  if(WasButtonPressed(BUTTON3))
+  {
+    ButtonAcknowledge(BUTTON3);
+  }
+}
+     
+/* GAMEPLAY FUNCTIONS */
 
 static void RNG(void)
 {
   u8GameVal = G_u32SystemTime1ms % 10;
+}
+
+static void OPERATIONS(void)
+{
+  if( bTurn )
+  {
+    if(WasButtonPressed(BUTTON0))
+    {
+      ButtonAcknowledge(BUTTON0);
+      GV_ADD();
+    }
+    if(WasButtonPressed(BUTTON1))
+    {
+      ButtonAcknowledge(BUTTON1);
+      GV_SUB();
+    }
+    if(WasButtonPressed(BUTTON2))
+    {
+      ButtonAcknowledge(BUTTON2);
+      GV_MULT();
+    }
+    if(WasButtonPressed(BUTTON3))
+    {
+      ButtonAcknowledge(BUTTON3);
+      GV_DIV();
+    }
+  }
+}
+     
+static void GV_ADD(void)
+{
+  u8GameVal += 1;
+  au8OutgoingData[0] = u8GameVal;
+  u8RecentData = u8GameVal;
+  bTurn = FALSE;
+  DISPLAY_WAIT();
+  if(u8GameVal == 1)
+  {
+    
+  }
+  if(u8GameVal >= 10 || u8GameVal < 0)
+  {
+    
+  }
+}
+     
+static void GV_SUB(void)
+{
+  u8GameVal -= 3;
+  au8OutgoingData[0] = u8GameVal;
+  u8RecentData = u8GameVal;
+  bTurn = FALSE;
+  DISPLAY_WAIT();
+  if(u8GameVal == 1)
+  {
+    
+  }
+  if(u8GameVal >= 10 || u8GameVal < 0)
+  {
+    
+  }
+}
+     
+static void GV_MULT(void)
+{
+  u8GameVal *= 2;
+  au8OutgoingData[0] = u8GameVal;
+  u8RecentData = u8GameVal;
+  bTurn = FALSE;
+  DISPLAY_WAIT();
+  if(u8GameVal == 1)
+  {
+    
+  }
+  if(u8GameVal >= 10 || u8GameVal < 0)
+  {
+    
+  }
+}
+     
+static void GV_DIV(void)
+{
+  u8GameVal /= 2;
+  au8OutgoingData[0] = u8GameVal;
+  u8RecentData = u8GameVal;
+  bTurn = FALSE;
+  DISPLAY_WAIT();
+  if(u8GameVal == 1)
+  {
+    
+  }
+  if(u8GameVal >= 10 || u8GameVal < 0)
+  {
+    
+  }
+}
+
+static void CHECK_GAME_STATE(void)
+{
+  if(au8IncomingData[1] == 1)
+  {
+    UserApp1StateMachine = UserApp1SM_Win;
+  }
+  if(au8IncomingData[1] == 2)
+  {
+     UserApp1StateMachine = UserApp1SM_Lose;
+  }
 }
 
 /* ANT FUNCTIONS */
@@ -212,20 +357,17 @@ static void UserApp1SM_Gen_or_Wait(void)
   {
     ButtonAcknowledge(BUTTON0);
     CLEAR_ALL();
-    
-    RNG();
-    
+    ANT_INIT();
     sChannelInfo.AntChannelType = CHANNEL_TYPE_MASTER;
     bTurn = TRUE;
+    RNG();
     UserApp1_StateMachine = UserApp1SM_ANT_Init;
   }
   if(WasButtonPressed(BUTTON3))
   {
     ButtonAcknowledge(BUTTON3);
     CLEAR_ALL();
-    
-    
-    
+    ANT_INIT();
     sChannelInfo.AntChannelType = CHANNEL_TYPE_SLAVE;
     bTurn = FALSE;
     UserApp1_StateMachine = UserApp1SM_ANT_Init;
@@ -263,7 +405,6 @@ static void UserApp1SM_ANT_ChannelAssign(void)
     CLEAR_ALL();
     LedOn(GREEN);
     AntOpenChannelNumber(ANT_CHANNEL_USERAPP);
-    DISPLAY_EDIT();
     UserApp1_StateMachine = UserApp1SM_Idle;
   }
   if(UserApp1_u32Timeout == 5000)
@@ -276,49 +417,75 @@ static void UserApp1SM_ANT_ChannelAssign(void)
 }
 
 /*-------------------------------------------------------------------------------------------------------------------*/
-/* Wait for ??? */
+/* Wait for ANT Config */
 static void UserApp1SM_Idle(void)
 {
-  if( bTurn )
-  {
-    if(WasButtonPressed(BUTTON0))
-    {
-      ButtonAcknowledge(BUTTON0);
-      u8GameVal++;
-      au8OutgoingData[0] = u8GameVal;
-      u8RecentData = u8GameVal;
-      bTurn = FALSE;
-      DISPLAY_WAIT();
-    }
-    if(WasButtonPressed(BUTTON1))
-    {
-      ButtonAcknowledge(BUTTON1);
-      u8GameVal -= 3;
-      au8OutgoingData[0] = u8GameVal;
-      u8RecentData = u8GameVal;
-      bTurn = FALSE;
-      DISPLAY_WAIT();
-    }
-    if(WasButtonPressed(BUTTON2))
-    {
-      ButtonAcknowledge(BUTTON2);
-      u8GameVal *= 2;
-      au8OutgoingData[0] = u8GameVal;
-      u8RecentData = u8GameVal;
-      bTurn = FALSE;
-      DISPLAY_WAIT();
-    }
-    if(WasButtonPressed(BUTTON3))
-    {
-      ButtonAcknowledge(BUTTON3);
-      u8GameVal /= 2;
-      au8OutgoingData[0] = u8GameVal;
-      u8RecentData = u8GameVal;
-      bTurn = FALSE;
-      DISPLAY_WAIT();
-    }
-  }
+  OPERATIONS();
   
+  if( AntReadAppMessageBuffer() )
+  {
+    for(u8 i = 0; i < ANT_NETWORK_NUMBER_BYTES; i++)
+    {
+      au8IncomingData[i] = G_au8AntApiCurrentMessageBytes[i];
+    }
+    CHECK_GAME_STATE();
+    if(G_eAntApiCurrentMessageClass == ANT_DATA)
+    {
+      if(bTurn)
+      {
+        DISPLAY_EDIT();
+        LedOn(GREEN);
+        u8RecentData = au8IncomingData[0];
+        u8LastData = au8IncomingData[0];
+      }
+      else
+      {
+        if(au8IncomingData[0] == u8RecentData)
+        {
+          LedOn(YELLOW);
+          u8LastData = au8IncomingData[0];
+        }
+        else if(au8IncomingData[0] != u8LastData)
+        {
+          LedOn(BLUE);
+          u8GameVal = au8IncomingData[0];
+          bTurn = TRUE;
+        }
+        else
+        {
+          LedOn(ORANGE);
+        }
+        BUTTON_ACK_ALL();
+      }
+    }
+    else if(G_eAntApiCurrentMessageClass == ANT_TICK)
+    {}
+    AntQueueBroadcastMessage(ANT_CHANNEL_USERAPP, au8OutgoingData);
+  }
+  LED_OFF();
+} /* end UserApp1SM_Idle() */
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+/* Handle an error */
+static void UserApp1SM_Error(void)          
+{
+  
+} /* end UserApp1SM_Error() */
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+/* GameVal == 1 */
+static void UserApp1SM_Win(void)          
+{
+  
+} /* end UserApp1SM_Win() */
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+/* GameVal == 2 */
+static void UserApp1SM_Lose(void)          
+{
+  
+} /* end UserApp1SM_Lose() */
+
   /*
   if(bTurn)
   {
@@ -338,52 +505,6 @@ static void UserApp1SM_Idle(void)
     //UPDATE GameVal and bTurn = TRUE
   }
   */
-  
-  if( AntReadAppMessageBuffer() )
-  {
-    au8IncomingData[0] = G_au8AntApiCurrentMessageBytes[0];
-    if(G_eAntApiCurrentMessageClass == ANT_DATA)
-    {
-      if(bTurn)
-      {
-        DISPLAY_EDIT();
-        LedOn(GREEN);
-        u8RecentData = au8IncomingData[0];
-        u8LastData = au8IncomingData[0];
-      }
-      else if(!bTurn && (au8IncomingData[0] == u8RecentData))
-      {
-        LedOn(YELLOW);
-        u8LastData = au8IncomingData[0];
-      }
-      else if(!bTurn && (au8IncomingData[0] != u8LastData))
-      {
-        LedOn(BLUE);
-        u8GameVal = au8IncomingData[0];
-        bTurn = TRUE;
-      }
-      else
-      {
-        LedOn(ORANGE);
-        //Don't update u8LastData
-      }
-      
-    }
-    else if(G_eAntApiCurrentMessageClass == ANT_TICK)
-    {}
-    AntQueueBroadcastMessage(ANT_CHANNEL_USERAPP, au8OutgoingData);
-  }
-  Led_OFF();
-} 
-/*-------------------------------------------------------------------------------------------------------------------*/
-/* Handle an error */
-static void UserApp1SM_Error(void)          
-{
-  
-} /* end UserApp1SM_Error() */
-
-
-
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* End of File                                                                                                        */
 /*--------------------------------------------------------------------------------------------------------------------*/
