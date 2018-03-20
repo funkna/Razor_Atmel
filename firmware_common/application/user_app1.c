@@ -97,7 +97,7 @@ static u8 au8Timeout[]            = "Timeout: Reset Board";
 static u8 au8Win_1[]              = "Congratulations!";
 static u8 au8Win_2[]              = "You won!";
 static u8 au8Lose_1[]             = "You lose.";
-static u8 au8Lose_2[]             = "Good luck next time.";
+static u8 au8Lose_2[]             = "Nice try.";
 /**********************************************************************************************************************
 Function Definitions
 **********************************************************************************************************************/
@@ -230,6 +230,7 @@ static void OPERATIONS(void)
 {
   if( bTurn )
   {
+    COUNTDOWN();
     if(WasButtonPressed(BUTTON0))
     {
       ButtonAcknowledge(BUTTON0);
@@ -250,6 +251,11 @@ static void OPERATIONS(void)
       ButtonAcknowledge(BUTTON3);
       GV_DIV();
     }
+  }
+  else
+  {
+    LED_OFF();
+    UserApp1_u32Timeout = 0;
   }
 }
      
@@ -343,6 +349,51 @@ static void CHECK_GAME_STATE(void)
   {
     CLEAR_ALL();
     LedOn(ORANGE);
+    LCDMessage(LINE1_START_ADDR, au8Lose_1);
+    LCDMessage(LINE2_START_ADDR, au8Lose_2);
+    UserApp1_StateMachine = UserApp1SM_Lose;
+  }
+}
+
+static void COUNTDOWN(void)
+{
+  UserApp1_u32Timeout++;
+  if(UserApp1_u32Timeout < 500)
+  {
+    LedOn(WHITE);
+  }
+  if(UserApp1_u32Timeout == 500)
+  {
+    LedOn(PURPLE);
+  }
+  if(UserApp1_u32Timeout == 1000)
+  {
+    LedOn(BLUE);
+  }
+  if(UserApp1_u32Timeout == 1500)
+  {
+    LedOn(CYAN);
+  }
+  if(UserApp1_u32Timeout == 2000)
+  {
+    LedOn(GREEN);
+  }
+  if(UserApp1_u32Timeout == 2500)
+  {
+    LedOn(YELLOW);
+  }
+  if(UserApp1_u32Timeout == 3000)
+  {
+    LedOn(ORANGE);
+  }
+  if(UserApp1_u32Timeout == 3500)
+  {
+    LedOn(RED);
+  }
+  if(UserApp1_u32Timeout == 4000)
+  {
+    CLEAR_ALL();
+    LedOn(RED);
     LCDMessage(LINE1_START_ADDR, au8Lose_1);
     LCDMessage(LINE2_START_ADDR, au8Lose_2);
     UserApp1_StateMachine = UserApp1SM_Lose;
@@ -472,7 +523,6 @@ static void UserApp1SM_Gen_or_Wait(void)
 /* Wait for ANT_INIT() */
 static void UserApp1SM_ANT_ChannelAssign(void)
 {
-  
   if(AntRadioStatusChannel(ANT_CHANNEL_USERAPP) == ANT_CONFIGURED)
   {
     LedOff(YELLOW);
@@ -489,6 +539,7 @@ static void UserApp1SM_ANT_ChannelAssign(void)
     LedOn(RED);
     UserApp1_StateMachine = UserApp1SM_Error;
   }
+  BUTTON_ACK_ALL();
 } /* end UserApp1SM_ChannelAssign() */
 
 /*-------------------------------------------------------------------------------------------------------------------*/
@@ -509,7 +560,6 @@ static void UserApp1SM_Game_State(void)
       if(bTurn)
       {
         DISPLAY_EDIT();
-        LedOn(GREEN);
         u8RecentData = au8IncomingData[0];
         u8LastData = au8IncomingData[0];
       }
@@ -517,25 +567,22 @@ static void UserApp1SM_Game_State(void)
       {
         if(au8IncomingData[0] == u8RecentData)
         {
-          LedOn(YELLOW);
           u8LastData = au8IncomingData[0];
         }
         else if(au8IncomingData[0] != u8LastData)
         {
-          LedOn(BLUE);
           u8GameVal = au8IncomingData[0];
           bTurn = TRUE;
         }
         else
         {
-          LedOn(ORANGE);
+          //Don't update LastData
         }
         BUTTON_ACK_ALL();
       }
     }
     AntQueueBroadcastMessage(ANT_CHANNEL_USERAPP, au8OutgoingData);
   }
-  LED_OFF();
   CHECK_GAME_STATE();
 } /* end UserApp1SM_Idle() */
 
@@ -554,7 +601,7 @@ static void UserApp1SM_Win(void)
 } /* end UserApp1SM_Win() */
 
 /*-------------------------------------------------------------------------------------------------------------------*/
-/* GameVal == 2 */
+/* 0 < GameVal > 10 */
 static void UserApp1SM_Lose(void)          
 {
 

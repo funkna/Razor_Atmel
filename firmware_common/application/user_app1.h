@@ -73,7 +73,7 @@ static void GV_SUB(void);
 static void GV_MULT(void);
 static void GV_DIV(void);
 static void CHECK_GAME_STATE(void);
-//static void COUNTDOWN(void);
+static void COUNTDOWN(void);
 //Functions that make ANT suck less
 static void ANT_INIT(void);
 static void ANT_MASTER_CONFIG(void);
@@ -86,8 +86,6 @@ static void UserApp1SM_Game_State(void);
 static void UserApp1SM_ANT_ChannelAssign(void);
 
 static void UserApp1SM_Gen_or_Wait(void);
-
-//static void UserApp1SM_ANT_Init(void);
 
 static void UserApp1SM_Error(void);         
 
