@@ -368,6 +368,39 @@ static void ANT_INIT(void)
     sChannelInfo.AntNetworkKey[i] = ANT_DEFAULT_NETWORK_KEY;
   }
 }
+static void ANT_MASTER_CONFIG(void)
+{
+  ANT_INIT();
+  sChannelInfo.AntChannelType = CHANNEL_TYPE_MASTER;
+  if(AntAssignChannel(&sChannelInfo))
+  {
+    UserApp1_StateMachine = UserApp1SM_ANT_ChannelAssign;
+    if(AntRadioStatusChannel(ANT_CHANNEL_USERAPP) == ANT_CONFIGURED)
+    {
+      LedOff(YELLOW);
+      LedOn(GREEN);
+      AntOpenChannelNumber(ANT_CHANNEL_USERAPP);
+      UserApp1_StateMachine = UserApp1SM_Idle;
+    }
+  }
+}
+
+static void ANT_SLAVE_CONFIG(void)
+{
+  ANT_INIT();
+  sChannelInfo.AntChannelType = CHANNEL_TYPE_SLAVE;
+  if(AntAssignChannel(&sChannelInfo))
+  {
+    UserApp1_StateMachine = UserApp1SM_ANT_ChannelAssign;
+    if(AntRadioStatusChannel(ANT_CHANNEL_USERAPP) == ANT_CONFIGURED)
+    {
+      LedOff(YELLOW);
+      LedOn(GREEN);
+      AntOpenChannelNumber(ANT_CHANNEL_USERAPP);
+      UserApp1_StateMachine = UserApp1SM_Idle;
+    }
+  }
+}
 /**********************************************************************************************************************
 State Machine Function Definitions
 **********************************************************************************************************************/
@@ -381,22 +414,22 @@ static void UserApp1SM_Gen_or_Wait(void)
   {
     ButtonAcknowledge(BUTTON0);
     CLEAR_ALL();
-    ANT_INIT();
-    sChannelInfo.AntChannelType = CHANNEL_TYPE_MASTER;
-    bTurn = TRUE;
     RNG();
+    
+    bTurn = TRUE;
     DISPLAY_EDIT();
-    UserApp1_StateMachine = UserApp1SM_ANT_Init;
+    ANT_MASTER_CONFIG();
+    //UserApp1_StateMachine = UserApp1SM_ANT_Init;
   }
   if(WasButtonPressed(BUTTON3))
   {
     ButtonAcknowledge(BUTTON3);
     CLEAR_ALL();
-    ANT_INIT();
-    sChannelInfo.AntChannelType = CHANNEL_TYPE_SLAVE;
+    
     bTurn = FALSE;
     DISPLAY_WAIT();
-    UserApp1_StateMachine = UserApp1SM_ANT_Init;
+    ANT_SLAVE_CONFIG();
+    //UserApp1_StateMachine = UserApp1SM_ANT_Init;
   }
   if(UserApp1_u32Timeout == 600000)
   {

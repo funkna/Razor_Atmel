@@ -76,6 +76,8 @@ static void CHECK_GAME_STATE(void);
 //static void COUNTDOWN(void);
 //Functions that make ANT suck less
 static void ANT_INIT(void);
+static void ANT_MASTER_CONFIG(void);
+static void ANT_SLAVE_CONFIG(void);
 /***********************************************************************************************************************
 State Machine Declarations
 ***********************************************************************************************************************/
