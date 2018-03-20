@@ -93,7 +93,11 @@ static u8 au8ANTFailConfig[]      = "Failed to Config ANT";
 static u8 au8ANTFailInit[]        = "Failed to Initialize";
 static u8 au8ErrorReset[]         = "Reset your board";
 static u8 au8GenericError[]       = "Something went wrong";
-
+static u8 au8Timeout[]            = "Timeout: Reset Board";
+static u8 au8Win_1[]              = "Congratulations!";
+static u8 au8Win_2[]              = "You won!";
+static u8 au8Lose_1[]             = "You lose.";
+static u8 au8Lose_2[]             = "Good luck next time.";
 /**********************************************************************************************************************
 Function Definitions
 **********************************************************************************************************************/
@@ -216,6 +220,10 @@ static void BUTTON_ACK_ALL(void)
 static void RNG(void)
 {
   u8GameVal = G_u32SystemTime1ms % 10;
+  if(u8GameVal == 1 || u8GameVal == 0)
+  {
+    u8GameVal = 2;
+  }
 }
 
 static void OPERATIONS(void)
@@ -254,11 +262,13 @@ static void GV_ADD(void)
   DISPLAY_WAIT();
   if(u8GameVal == 1)
   {
-    
+    au8OutgoingData[1] = 1;
+    UserApp1_StateMachine = UserApp1SM_Win;
   }
   if(u8GameVal >= 10 || u8GameVal < 0)
   {
-    
+    au8OutgoingData[1] = 2;
+    UserApp1_StateMachine = UserApp1SM_Lose;
   }
 }
      
@@ -271,11 +281,13 @@ static void GV_SUB(void)
   DISPLAY_WAIT();
   if(u8GameVal == 1)
   {
-    
+    au8OutgoingData[1] = 1;
+    UserApp1_StateMachine = UserApp1SM_Win;
   }
   if(u8GameVal >= 10 || u8GameVal < 0)
   {
-    
+    au8OutgoingData[1] = 2;
+    UserApp1_StateMachine = UserApp1SM_Lose;
   }
 }
      
@@ -288,11 +300,13 @@ static void GV_MULT(void)
   DISPLAY_WAIT();
   if(u8GameVal == 1)
   {
-    
+    au8OutgoingData[1] = 1;
+    UserApp1_StateMachine = UserApp1SM_Win;
   }
   if(u8GameVal >= 10 || u8GameVal < 0)
   {
-    
+    au8OutgoingData[1] = 2;
+    UserApp1_StateMachine = UserApp1SM_Lose;
   }
 }
      
@@ -305,23 +319,33 @@ static void GV_DIV(void)
   DISPLAY_WAIT();
   if(u8GameVal == 1)
   {
-    
+    au8OutgoingData[1] = 1;
+    UserApp1_StateMachine = UserApp1SM_Win;
   }
   if(u8GameVal >= 10 || u8GameVal < 0)
   {
-    
+    au8OutgoingData[1] = 2;
+    UserApp1_StateMachine = UserApp1SM_Lose;
   }
 }
 
 static void CHECK_GAME_STATE(void)
 {
-  if(au8IncomingData[1] == 1)
+  if(au8IncomingData[1] == 1 || u8GameVal == 1)
   {
-    UserApp1StateMachine = UserApp1SM_Win;
+    CLEAR_ALL();
+    LedOn(PURPLE);
+    LCDMessage(LINE1_START_ADDR, au8Win_1);
+    LCDMessage(LINE2_START_ADDR, au8Win_2);
+    UserApp1_StateMachine = UserApp1SM_Win;
   }
-  if(au8IncomingData[1] == 2)
+  if(au8IncomingData[1] == 2 ||  u8GameVal < 0 ||  u8GameVal > 10)
   {
-     UserApp1StateMachine = UserApp1SM_Lose;
+    CLEAR_ALL();
+    LedOn(ORANGE);
+    LCDMessage(LINE1_START_ADDR, au8Lose_1);
+    LCDMessage(LINE2_START_ADDR, au8Lose_2);
+    UserApp1_StateMachine = UserApp1SM_Lose;
   }
 }
 
@@ -349,7 +373,7 @@ State Machine Function Definitions
 **********************************************************************************************************************/
 
 /*-------------------------------------------------------------------------------------------------------------------*/
-/* Wait for ??? */
+/* Wait for Initilization */
 static void UserApp1SM_Gen_or_Wait(void)
 {
   UserApp1_u32Timeout++;
@@ -361,6 +385,7 @@ static void UserApp1SM_Gen_or_Wait(void)
     sChannelInfo.AntChannelType = CHANNEL_TYPE_MASTER;
     bTurn = TRUE;
     RNG();
+    DISPLAY_EDIT();
     UserApp1_StateMachine = UserApp1SM_ANT_Init;
   }
   if(WasButtonPressed(BUTTON3))
@@ -370,39 +395,45 @@ static void UserApp1SM_Gen_or_Wait(void)
     ANT_INIT();
     sChannelInfo.AntChannelType = CHANNEL_TYPE_SLAVE;
     bTurn = FALSE;
+    DISPLAY_WAIT();
     UserApp1_StateMachine = UserApp1SM_ANT_Init;
   }
-  // ADD TIMEOUT
-} /* end UserApp1SM_M_or_S() */
+  if(UserApp1_u32Timeout == 600000)
+  {
+    CLEAR_ALL();
+    LedOn(RED);
+    LCDMessage(LINE1_START_ADDR, au8Timeout);
+    UserApp1_StateMachine = UserApp1SM_Error;
+  }
+} /* end UserApp1SM_Gen_or_Wait() */
 
 
 /*-------------------------------------------------------------------------------------------------------------------*/
-/* Wait for ??? */
+/* Wait for User Interaction */
 static void UserApp1SM_ANT_Init(void)
 {
   if( AntAssignChannel(&sChannelInfo))
   {
-    CLEAR_ALL();
     UserApp1_StateMachine = UserApp1SM_ANT_ChannelAssign;
   }
   else
   {
     CLEAR_ALL();
-    LCDMessage(0x00, "Failed to Init");
+    LCDMessage(LINE1_START_ADDR, au8ANTFailInit);
+    LCDMessage(LINE2_START_ADDR, au8ErrorReset);
     LedOn(RED);
-    /* The task isn't properly initialized, so shut it down and don't run */
     UserApp1_StateMachine = UserApp1SM_Error;
   }
-}
+} /* end UserApp1SM_Init() */
 
 /*-------------------------------------------------------------------------------------------------------------------*/
-/* Wait for ??? */
+/* Wait for ANT_INIT() */
 static void UserApp1SM_ANT_ChannelAssign(void)
 {
   UserApp1_u32Timeout++;
   if(AntRadioStatusChannel(ANT_CHANNEL_USERAPP) == ANT_CONFIGURED)
   {
-    CLEAR_ALL();
+    LedOff(YELLOW);
     LedOn(GREEN);
     AntOpenChannelNumber(ANT_CHANNEL_USERAPP);
     UserApp1_StateMachine = UserApp1SM_Idle;
@@ -410,11 +441,12 @@ static void UserApp1SM_ANT_ChannelAssign(void)
   if(UserApp1_u32Timeout == 5000)
   {
     CLEAR_ALL();
-    LCDMessage(0x00, "Failed to Config");
+    LCDMessage(LINE1_START_ADDR, au8ANTFailConfig);
+    LCDMessage(LINE2_START_ADDR, au8ErrorReset);
     LedOn(RED);
     UserApp1_StateMachine = UserApp1SM_Error;
   }
-}
+} /* end UserApp1SM_ChannelAssign() */
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Wait for ANT Config */
@@ -428,7 +460,7 @@ static void UserApp1SM_Idle(void)
     {
       au8IncomingData[i] = G_au8AntApiCurrentMessageBytes[i];
     }
-    CHECK_GAME_STATE();
+    
     if(G_eAntApiCurrentMessageClass == ANT_DATA)
     {
       if(bTurn)
@@ -458,32 +490,31 @@ static void UserApp1SM_Idle(void)
         BUTTON_ACK_ALL();
       }
     }
-    else if(G_eAntApiCurrentMessageClass == ANT_TICK)
-    {}
     AntQueueBroadcastMessage(ANT_CHANNEL_USERAPP, au8OutgoingData);
   }
   LED_OFF();
+  CHECK_GAME_STATE();
 } /* end UserApp1SM_Idle() */
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Handle an error */
 static void UserApp1SM_Error(void)          
 {
-  
+
 } /* end UserApp1SM_Error() */
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* GameVal == 1 */
 static void UserApp1SM_Win(void)          
 {
-  
+
 } /* end UserApp1SM_Win() */
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* GameVal == 2 */
 static void UserApp1SM_Lose(void)          
 {
-  
+
 } /* end UserApp1SM_Lose() */
 
   /*

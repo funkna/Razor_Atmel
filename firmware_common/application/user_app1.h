@@ -72,7 +72,7 @@ static void GV_ADD(void);
 static void GV_SUB(void);
 static void GV_MULT(void);
 static void GV_DIV(void);
-//static void CHECK_GAME_STATE(void);
+static void CHECK_GAME_STATE(void);
 //static void COUNTDOWN(void);
 //Functions that make ANT suck less
 static void ANT_INIT(void);
@@ -89,6 +89,9 @@ static void UserApp1SM_ANT_Init(void);
 
 static void UserApp1SM_Error(void);         
 
+static void UserApp1SM_Win(void);
+
+static void UserApp1SM_Lose(void);
 
 #endif /* __USER_APP1_H */
 
