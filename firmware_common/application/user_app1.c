@@ -72,7 +72,8 @@ static u8 au8IncomingData[] = {0,0,0,0,0,0,0,0};
 static u8 au8OutgoingData[] = {0,0,0,0,0,0,0,0};
 
 static u8 u8GameVal = 0;
-
+static u8 u8RecentData = 0;
+static u8 u8LastData = 0;
 static bool bTurn;
 
 static u8 au8PrintChar[5] = "     ";
@@ -162,7 +163,7 @@ static void DISPLAY_EDIT(void)
 {
   LCDCommand(LCD_CLEAR_CMD);
   au8PrintChar[0] = 48 + u8GameVal;
-  LCDMessage(0x00, "Current Value:");
+  LCDMessage(LINE1_START_ADDR, "Current Value:");
   LCDMessage(0x11, au8PrintChar);
   LCDMessage(LINE2_START_ADDR, "+1    -3    x2    /2");
 }
@@ -170,8 +171,8 @@ static void DISPLAY_EDIT(void)
 static void DISPLAY_WAIT(void)
 {
   LCDCommand(LCD_CLEAR_CMD);
-  LCDMessage(0x00, "Waiting...");
-  LCDMessage(LINE2_START_ADDR, "It's not ur turn");
+  LCDMessage(LINE1_START_ADDR, "Waiting...");
+  LCDMessage(LINE2_START_ADDR, "Not your turn.");
 }
 
 static void RNG(void)
@@ -285,6 +286,7 @@ static void UserApp1SM_Idle(void)
       ButtonAcknowledge(BUTTON0);
       u8GameVal++;
       au8OutgoingData[0] = u8GameVal;
+      u8RecentData = u8GameVal;
       bTurn = FALSE;
       DISPLAY_WAIT();
     }
@@ -293,6 +295,7 @@ static void UserApp1SM_Idle(void)
       ButtonAcknowledge(BUTTON1);
       u8GameVal -= 3;
       au8OutgoingData[0] = u8GameVal;
+      u8RecentData = u8GameVal;
       bTurn = FALSE;
       DISPLAY_WAIT();
     }
@@ -301,6 +304,7 @@ static void UserApp1SM_Idle(void)
       ButtonAcknowledge(BUTTON2);
       u8GameVal *= 2;
       au8OutgoingData[0] = u8GameVal;
+      u8RecentData = u8GameVal;
       bTurn = FALSE;
       DISPLAY_WAIT();
     }
@@ -309,34 +313,67 @@ static void UserApp1SM_Idle(void)
       ButtonAcknowledge(BUTTON3);
       u8GameVal /= 2;
       au8OutgoingData[0] = u8GameVal;
+      u8RecentData = u8GameVal;
       bTurn = FALSE;
       DISPLAY_WAIT();
     }
   }
   
+  /*
+  if(bTurn)
+  {
+    //UPDATE LASTDATA AND RECENT DATA to incoming data
+      //When GameVal is changed, update RECENTDATA and bTurn = False
+  }
+  if(!bTurn && (au8IncomingData[0] != u8RecentData))
+  {
+    //DO NOT UPDATE LASTDATA
+  }
+  if(!bTurn && (au8IncomingData[0] == u8RecentData))
+  {
+    //UPDATE LASTDATA
+  }
+  if(!bTurn && (au8IncomingData[0] != u8LastData))
+  {
+    //UPDATE GameVal and bTurn = TRUE
+  }
+  */
+  
   if( AntReadAppMessageBuffer() )
   {
-    AntQueueBroadcastMessage(ANT_CHANNEL_USERAPP, au8OutgoingData);
     au8IncomingData[0] = G_au8AntApiCurrentMessageBytes[0];
     if(G_eAntApiCurrentMessageClass == ANT_DATA)
     {
-      if(!bTurn && (au8IncomingData[0] != u8GameVal))
-      {
-        LedOn(PURPLE);
-        u8GameVal = au8IncomingData[0];
-        bTurn = TRUE;
-        
-      }
       if(bTurn)
       {
-        LedOff(PURPLE);
         DISPLAY_EDIT();
+        LedOn(GREEN);
+        u8RecentData = au8IncomingData[0];
+        u8LastData = au8IncomingData[0];
       }
+      else if(!bTurn && (au8IncomingData[0] == u8RecentData))
+      {
+        LedOn(YELLOW);
+        u8LastData = au8IncomingData[0];
+      }
+      else if(!bTurn && (au8IncomingData[0] != u8LastData))
+      {
+        LedOn(BLUE);
+        u8GameVal = au8IncomingData[0];
+        bTurn = TRUE;
+      }
+      else
+      {
+        LedOn(ORANGE);
+        //Don't update u8LastData
+      }
+      
     }
     else if(G_eAntApiCurrentMessageClass == ANT_TICK)
     {}
+    AntQueueBroadcastMessage(ANT_CHANNEL_USERAPP, au8OutgoingData);
   }
-  
+  Led_OFF();
 } 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Handle an error */
