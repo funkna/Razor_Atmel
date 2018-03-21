@@ -65,7 +65,7 @@ Variable names shall start with "UserApp1_" and be declared as static.
 ***********************************************************************************************************************/
 static fnCode_type UserApp1_StateMachine;            /* The state machine function pointer */
 static u32 UserApp1_u32Timeout = 0;                      /* Timeout counter used across states */
-
+static u32 u32Timer = 0;
 AntAssignChannelInfoType sChannelInfo;
 
 
@@ -78,10 +78,14 @@ static u8 u8RecentData = 0;
 static u8 u8LastData = 0;
 static bool bTurn;
 
+static bool bRule1 = TRUE;
+static bool bRule2 = FALSE;
+static bool bRule3 = FALSE;
 
 
 //Strings to print on the LCD 
 //Max string length is:             "                    "
+static u8 au8WelcomeMessage[]     = "Hot Potato Math Game";
 static u8 au8Instruction_1[]      = "Press B0 to go 1st";
 static u8 au8Instruction_2[]      = "Press B3 to go 2nd";
 static u8 au8Operations[]         = "+1    -3    x2    /2";
@@ -123,13 +127,10 @@ Promises:
   - 
 */
 void UserApp1Initialize(void)
-{
+{   
     CLEAR_ALL();
-    
     LCDMessage(LINE1_START_ADDR, au8Instruction_1);
     LCDMessage(LINE2_START_ADDR, au8Instruction_2);
-    LedBlink(YELLOW, LED_2HZ);
-    
     UserApp1_StateMachine = UserApp1SM_Gen_or_Wait;
 } /* end UserApp1Initialize() */
 
@@ -214,7 +215,13 @@ static void BUTTON_ACK_ALL(void)
     ButtonAcknowledge(BUTTON3);
   }
 }
-     
+/* LED FUNCTiONS */
+static void LED_DISPLAY_1(void)
+{
+  static u32 u32Counter = 0;
+  u32Counter++;
+}
+
 /* GAMEPLAY FUNCTIONS */
 
 static void RNG(void)
@@ -266,16 +273,6 @@ static void GV_ADD(void)
   u8RecentData = u8GameVal;
   bTurn = FALSE;
   DISPLAY_WAIT();
-  if(u8GameVal == 1)
-  {
-    au8OutgoingData[1] = 1;
-    UserApp1_StateMachine = UserApp1SM_Win;
-  }
-  if(u8GameVal >= 10 || u8GameVal < 0)
-  {
-    au8OutgoingData[1] = 2;
-    UserApp1_StateMachine = UserApp1SM_Lose;
-  }
 }
      
 static void GV_SUB(void)
@@ -285,16 +282,6 @@ static void GV_SUB(void)
   u8RecentData = u8GameVal;
   bTurn = FALSE;
   DISPLAY_WAIT();
-  if(u8GameVal == 1)
-  {
-    au8OutgoingData[1] = 1;
-    UserApp1_StateMachine = UserApp1SM_Win;
-  }
-  if(u8GameVal >= 10 || u8GameVal < 0)
-  {
-    au8OutgoingData[1] = 2;
-    UserApp1_StateMachine = UserApp1SM_Lose;
-  }
 }
      
 static void GV_MULT(void)
@@ -304,16 +291,6 @@ static void GV_MULT(void)
   u8RecentData = u8GameVal;
   bTurn = FALSE;
   DISPLAY_WAIT();
-  if(u8GameVal == 1)
-  {
-    au8OutgoingData[1] = 1;
-    UserApp1_StateMachine = UserApp1SM_Win;
-  }
-  if(u8GameVal >= 10 || u8GameVal < 0)
-  {
-    au8OutgoingData[1] = 2;
-    UserApp1_StateMachine = UserApp1SM_Lose;
-  }
 }
      
 static void GV_DIV(void)
@@ -323,16 +300,6 @@ static void GV_DIV(void)
   u8RecentData = u8GameVal;
   bTurn = FALSE;
   DISPLAY_WAIT();
-  if(u8GameVal == 1)
-  {
-    au8OutgoingData[1] = 1;
-    UserApp1_StateMachine = UserApp1SM_Win;
-  }
-  if(u8GameVal >= 10 || u8GameVal < 0)
-  {
-    au8OutgoingData[1] = 2;
-    UserApp1_StateMachine = UserApp1SM_Lose;
-  }
 }
 
 static void CHECK_GAME_STATE(void)
@@ -487,9 +454,21 @@ static void ANT_SLAVE_CONFIG(void)
 /**********************************************************************************************************************
 State Machine Function Definitions
 **********************************************************************************************************************/
-
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Wait for Initilization */
+static void UserApp1SM_Intro(void)
+{
+  LCDMessage(LINE1_START_ADDR, au8WelcomeMessage);
+  if(WasButtonPressed(BUTTON0))
+  {
+    BUTTON_ACK_ALL();
+    u32Timer = 0;
+    
+  }
+}/* end of UserApp1SM_Rules() */
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+/* Wait for Instruction Timeout */
 static void UserApp1SM_Gen_or_Wait(void)
 {
   UserApp1_u32Timeout++;
@@ -510,7 +489,7 @@ static void UserApp1SM_Gen_or_Wait(void)
     DISPLAY_WAIT();
     ANT_SLAVE_CONFIG();
   }
-  if(UserApp1_u32Timeout == 600000)
+  if(UserApp1_u32Timeout == 6000000)
   {
     CLEAR_ALL();
     LedOn(RED);
@@ -582,8 +561,9 @@ static void UserApp1SM_Game_State(void)
       }
     }
     AntQueueBroadcastMessage(ANT_CHANNEL_USERAPP, au8OutgoingData);
+    CHECK_GAME_STATE();
   }
-  CHECK_GAME_STATE();
+  
 } /* end UserApp1SM_Idle() */
 
 /*-------------------------------------------------------------------------------------------------------------------*/

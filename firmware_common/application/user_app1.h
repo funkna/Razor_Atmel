@@ -65,6 +65,7 @@ static void CLEAR_ALL(void);
 static void DISPLAY_EDIT(void);
 static void DISPLAY_WAIT(void);
 static void BUTTON_ACK_ALL(void);
+
 //Functions that make the game playable
 static void RNG(void);
 static void OPERATIONS(void);
@@ -74,13 +75,17 @@ static void GV_MULT(void);
 static void GV_DIV(void);
 static void CHECK_GAME_STATE(void);
 static void COUNTDOWN(void);
+
 //Functions that make ANT suck less
 static void ANT_INIT(void);
 static void ANT_MASTER_CONFIG(void);
 static void ANT_SLAVE_CONFIG(void);
+
 /***********************************************************************************************************************
 State Machine Declarations
 ***********************************************************************************************************************/
+static void UserApp1SM_Intro(void);
+
 static void UserApp1SM_Game_State(void);    
 
 static void UserApp1SM_ANT_ChannelAssign(void);
