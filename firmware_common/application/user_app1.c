@@ -215,11 +215,154 @@ static void BUTTON_ACK_ALL(void)
     ButtonAcknowledge(BUTTON3);
   }
 }
-/* LED FUNCTiONS */
+/* LED FUNCTIONS */
 static void LED_DISPLAY_1(void)
 {
-  static u32 u32Counter = 0;
-  u32Counter++;
+  static u8 u8Color = 0;
+  static u16 u16BlinkCount = 0;
+  static u8 u8Bool = 0;
+  static u8 u8Bool_2 = 0;
+  static u8 u8ColorStep = 0;
+  static LedRateType ePWM = LED_PWM_0;
+  
+  u16BlinkCount++;
+  if(u16BlinkCount >= 40)
+  {
+    u16BlinkCount = 0;
+    
+    if(ePWM <= LED_PWM_0)
+    {
+      u8Bool = 0;
+      u8ColorStep++;
+    }
+    if(ePWM >= LED_PWM_100)
+    {
+      u8Bool = 1;
+      u8ColorStep++;
+    }
+    
+    if(u8Bool == 0)
+      ePWM++;
+    else
+      ePWM--;
+    
+    if(u8ColorStep >= 3)
+    {
+      u8ColorStep = 1;
+    if(u8Bool_2 == 0)
+      u8Color++;
+    if(u8Bool_2 == 1)
+      u8Color--;
+    if(u8Color >= 6)
+      u8Bool_2 = 1;
+    if(u8Color <= 0)
+      u8Bool_2 = 0;
+    }
+    switch(u8Color)
+    {
+    case 0: /*purple*/
+        LedPWM(PURPLE, ePWM);
+    LedOff(BLUE);
+    LedOff(CYAN);
+    LedOff(GREEN);
+    LedOff(YELLOW);
+    LedOff(ORANGE);
+    LedOff(RED);
+    break;
+    case 1: /*blue*/
+        LedPWM(BLUE, ePWM);
+    LedOff(PURPLE);
+    LedOff(CYAN);
+    LedOff(GREEN);
+    LedOff(YELLOW);
+    LedOff(ORANGE);
+    LedOff(RED);      
+    break;
+    case 2: /*cyan*/
+        LedPWM(CYAN, ePWM);
+    LedOff(PURPLE);
+    LedOff(BLUE);
+    LedOff(GREEN);
+    LedOff(YELLOW);
+    LedOff(ORANGE);
+    LedOff(RED);      
+    break;
+    case 3: /*green*/
+        LedPWM(GREEN, ePWM);
+    LedOff(PURPLE);
+    LedOff(BLUE);
+    LedOff(CYAN);
+    LedOff(YELLOW);
+    LedOff(ORANGE);
+    LedOff(RED);      
+    break;
+    case 4: /*yellow*/
+        LedPWM(YELLOW, ePWM);
+    LedOff(PURPLE);
+    LedOff(BLUE);
+    LedOff(CYAN);
+    LedOff(GREEN);
+    LedOff(ORANGE);
+    LedOff(RED);      
+    break;
+    case 5: /*orange*/
+        LedPWM(ORANGE, ePWM);
+    LedOff(PURPLE);
+    LedOff(BLUE);
+    LedOff(CYAN);
+    LedOff(GREEN);
+    LedOff(YELLOW);
+    LedOff(RED);      
+    break;
+    case 6: /*red*/
+        LedPWM(RED, ePWM);
+    LedOff(PURPLE);
+    LedOff(BLUE);
+    LedOff(CYAN);
+    LedOff(GREEN);
+    LedOff(YELLOW);
+    LedOff(ORANGE);  
+    break;
+    default: /*All PWM fade*/
+      LED_OFF();
+    break;
+    }
+  }
+}
+
+static void LED_DISPLAY_2(void)
+{
+  static u16 u16BlinkCount = 0;
+  static bool bLED_BOOL;
+  static LedRateType ePWM = LED_PWM_0;
+  
+  u16BlinkCount++;
+  if(u16BlinkCount >= 15)
+  {
+    u16BlinkCount = 0;
+    
+    if(ePWM <= LED_PWM_0)
+    {
+      bLED_BOOL = FALSE;
+    }
+    if(ePWM >= LED_PWM_100)
+    {
+      bLED_BOOL = TRUE;
+    }
+    
+    if(!bLED_BOOL)
+      ePWM++;
+    else
+      ePWM--;
+    
+    LedPWM(RED, ePWM);  
+    LedPWM(ORANGE, ePWM);
+    LedPWM(YELLOW, ePWM);
+    LedPWM(GREEN, ePWM);
+    LedPWM(CYAN, ePWM);
+    LedPWM(BLUE, ePWM);
+    LedPWM(PURPLE, ePWM);
+  }
 }
 
 /* GAMEPLAY FUNCTIONS */
@@ -472,6 +615,7 @@ static void UserApp1SM_Intro(void)
 static void UserApp1SM_Gen_or_Wait(void)
 {
   UserApp1_u32Timeout++;
+  LED_DISPLAY_1();
   if(WasButtonPressed(BUTTON0))
   {
     ButtonAcknowledge(BUTTON0);
@@ -544,6 +688,7 @@ static void UserApp1SM_Game_State(void)
       }
       else
       {
+        LED_DISPLAY_2();
         if(au8IncomingData[0] == u8RecentData)
         {
           u8LastData = au8IncomingData[0];
