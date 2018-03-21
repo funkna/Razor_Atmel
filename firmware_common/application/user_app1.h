@@ -66,6 +66,9 @@ static void DISPLAY_EDIT(void);
 static void DISPLAY_WAIT(void);
 static void BUTTON_ACK_ALL(void);
 
+//Aesthetic Nonsense
+static void LED_DISPLAY_1(void);
+
 //Functions that make the game playable
 static void RNG(void);
 static void OPERATIONS(void);
