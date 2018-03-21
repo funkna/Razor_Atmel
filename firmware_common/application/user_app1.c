@@ -1,6 +1,6 @@
-/**********************************************************************************************************************
+/*********************************************************************************************************************
 File: user_app1.c                                                                
-/*************HOT POTATO MATH GAME*************************************************************************************
+*************HOT POTATO MATH GAME*************************************************************************************
 ----------------------------------------------------------------------------------------------------------------------
 To start a new task using this user_app1 as a template:
  1. Copy both user_app1.c and user_app1.h to the Application directory
@@ -65,7 +65,6 @@ Variable names shall start with "UserApp1_" and be declared as static.
 ***********************************************************************************************************************/
 static fnCode_type UserApp1_StateMachine;            /* The state machine function pointer */
 static u32 UserApp1_u32Timeout = 0;                      /* Timeout counter used across states */
-static u32 u32Timer = 0;
 AntAssignChannelInfoType sChannelInfo;
 
 
@@ -78,9 +77,6 @@ static u8 u8RecentData = 0;
 static u8 u8LastData = 0;
 static bool bTurn;
 
-static bool bRule1 = TRUE;
-static bool bRule2 = FALSE;
-static bool bRule3 = FALSE;
 
 
 //Strings to print on the LCD 
@@ -337,7 +333,7 @@ static void LED_DISPLAY_2(void)
   static LedRateType ePWM = LED_PWM_0;
   
   u16BlinkCount++;
-  if(u16BlinkCount >= 15)
+  if(u16BlinkCount >= 100)
   {
     u16BlinkCount = 0;
     
@@ -362,6 +358,21 @@ static void LED_DISPLAY_2(void)
     LedPWM(CYAN, ePWM);
     LedPWM(BLUE, ePWM);
     LedPWM(PURPLE, ePWM);
+    LedPWM(WHITE, ePWM);
+  }
+}
+
+static void BUZZER_BLIP_1(void)
+{
+  PWMAudioSetFrequency(BUZZER1, 262);
+  if( IsButtonPressed(BUTTON0) || IsButtonPressed(BUTTON1) ||
+      IsButtonPressed(BUTTON2) || IsButtonPressed(BUTTON3) )
+  {
+    PWMAudioOn(BUZZER1);
+  }
+  else
+  {
+    PWMAudioOff(BUZZER1);    
   }
 }
 
@@ -438,6 +449,8 @@ static void GV_MULT(void)
      
 static void GV_DIV(void)
 {
+  if(u8GameVal%2)
+    u8GameVal--;
   u8GameVal /= 2;
   au8OutgoingData[0] = u8GameVal;
   u8RecentData = u8GameVal;
@@ -453,14 +466,16 @@ static void CHECK_GAME_STATE(void)
     LedOn(PURPLE);
     LCDMessage(LINE1_START_ADDR, au8Win_1);
     LCDMessage(LINE2_START_ADDR, au8Win_2);
+    PWMAudioOff(BUZZER1);
     UserApp1_StateMachine = UserApp1SM_Win;
   }
   if(au8IncomingData[1] == 2 ||  u8GameVal < 0 ||  u8GameVal > 10)
   {
     CLEAR_ALL();
-    LedOn(ORANGE);
+    LedBlink(RED, LED_4HZ);
     LCDMessage(LINE1_START_ADDR, au8Lose_1);
     LCDMessage(LINE2_START_ADDR, au8Lose_2);
+    PWMAudioOff(BUZZER1);
     UserApp1_StateMachine = UserApp1SM_Lose;
   }
 }
@@ -503,10 +518,8 @@ static void COUNTDOWN(void)
   if(UserApp1_u32Timeout == 4000)
   {
     CLEAR_ALL();
-    LedOn(RED);
-    LCDMessage(LINE1_START_ADDR, au8Lose_1);
-    LCDMessage(LINE2_START_ADDR, au8Lose_2);
-    UserApp1_StateMachine = UserApp1SM_Lose;
+    u8GameVal = 15;
+    au8OutgoingData[1] = 2;
   }
 }
 
@@ -597,21 +610,9 @@ static void ANT_SLAVE_CONFIG(void)
 /**********************************************************************************************************************
 State Machine Function Definitions
 **********************************************************************************************************************/
-/*-------------------------------------------------------------------------------------------------------------------*/
-/* Wait for Initilization */
-static void UserApp1SM_Intro(void)
-{
-  LCDMessage(LINE1_START_ADDR, au8WelcomeMessage);
-  if(WasButtonPressed(BUTTON0))
-  {
-    BUTTON_ACK_ALL();
-    u32Timer = 0;
-    
-  }
-}/* end of UserApp1SM_Rules() */
 
 /*-------------------------------------------------------------------------------------------------------------------*/
-/* Wait for Instruction Timeout */
+/* Wait for Initialization */
 static void UserApp1SM_Gen_or_Wait(void)
 {
   UserApp1_u32Timeout++;
@@ -648,8 +649,6 @@ static void UserApp1SM_ANT_ChannelAssign(void)
 {
   if(AntRadioStatusChannel(ANT_CHANNEL_USERAPP) == ANT_CONFIGURED)
   {
-    LedOff(YELLOW);
-    LedOn(GREEN);
     AntOpenChannelNumber(ANT_CHANNEL_USERAPP);
     UserApp1_StateMachine = UserApp1SM_Game_State;
   }
@@ -670,7 +669,7 @@ static void UserApp1SM_ANT_ChannelAssign(void)
 static void UserApp1SM_Game_State(void)
 {
   OPERATIONS();
-  
+  BUZZER_BLIP_1();
   if( AntReadAppMessageBuffer() )
   {
     for(u8 i = 0; i < ANT_NETWORK_NUMBER_BYTES; i++)
@@ -688,7 +687,6 @@ static void UserApp1SM_Game_State(void)
       }
       else
       {
-        LED_DISPLAY_2();
         if(au8IncomingData[0] == u8RecentData)
         {
           u8LastData = au8IncomingData[0];
@@ -732,25 +730,6 @@ static void UserApp1SM_Lose(void)
 
 } /* end UserApp1SM_Lose() */
 
-  /*
-  if(bTurn)
-  {
-    //UPDATE LASTDATA AND RECENT DATA to incoming data
-    //When GameVal is changed, update RECENTDATA and bTurn = False
-  }
-  if(!bTurn && (au8IncomingData[0] != u8RecentData))
-  {
-    //DO NOT UPDATE LASTDATA
-  }
-  if(!bTurn && (au8IncomingData[0] == u8RecentData))
-  {
-    //UPDATE LASTDATA
-  }
-  if(!bTurn && (au8IncomingData[0] != u8LastData))
-  {
-    //UPDATE GameVal and bTurn = TRUE
-  }
-  */
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* End of File                                                                                                        */
 /*--------------------------------------------------------------------------------------------------------------------*/

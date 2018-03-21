@@ -69,6 +69,7 @@ static void BUTTON_ACK_ALL(void);
 //Aesthetic Nonsense
 static void LED_DISPLAY_1(void);
 static void LED_DISPLAY_2(void);
+static void BUZZER_BLIP_1(void);
 
 //Functions that make the game playable
 static void RNG(void);
