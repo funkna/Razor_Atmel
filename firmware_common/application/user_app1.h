@@ -59,32 +59,43 @@ void UserApp1RunActiveState(void);
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Private functions                                                                                                  */
 /*--------------------------------------------------------------------------------------------------------------------*/
-//Functions to make life easy
-static void LED_OFF(void);
-static void CLEAR_ALL(void);
-static void DISPLAY_EDIT(void);
-static void DISPLAY_WAIT(void);
-static void BUTTON_ACK_ALL(void);
+//Functions to make tame this beast
+static void LedOffAll(void);
+static void ClearAll(void);
+static void DisplayEdit(void);
+static void DisplayWait(void);
+static void AcknowledgeAll(void);
 
-//Aesthetic Nonsense
-static void LED_DISPLAY_1(void);
-static void LED_DISPLAY_2(void);
-static void BUZZER_BLIP_1(void);
+//Functions for LED patterns
+static void LedDisplay1(void);
+static void LedDisplay2(void);
+static void BuzzerBlip1(void);
 
-//Functions that make the game playable
-static void RNG(void);
-static void OPERATIONS(void);
-static void GV_ADD(void);
-static void GV_SUB(void);
-static void GV_MULT(void);
-static void GV_DIV(void);
-static void CHECK_GAME_STATE(void);
-static void COUNTDOWN(void);
+//Functions to edit game values
+static void RandomNumber(void);
+static void Operations(void);
+static void GameAdd(void);
+static void GameSub(void);
+static void GameMult(void);
+static void GameDiv(void);
+static void CheckGameState(void);
+static void Countdown(void);
 
-//Functions that make ANT suck less
-static void ANT_INIT(void);
-static void ANT_MASTER_CONFIG(void);
-static void ANT_SLAVE_CONFIG(void);
+//Functions that make ANT tolerable
+static void AntInit(void);
+static void AntMasterConfig(void);
+static void AntSlaveConfig(void);
+
+/*   ANT MESSAGE BYTE USAGE:
+0 - Game Value
+1 - Game Status Flag
+2 - Flag for Value Edit
+3 - Empty
+4 - Empty
+5 - Empty
+6 - Empty
+7 - Empty
+*/
 
 /***********************************************************************************************************************
 State Machine Declarations

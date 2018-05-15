@@ -73,6 +73,7 @@ AntAssignChannelInfoType sChannelInfo;
 static u8 au8IncomingData[] = {0,0,0,0,0,0,0,0};
 static u8 au8OutgoingData[] = {0,0,0,0,0,0,0,0};
 static u8 u8GameVal = 0;
+static u8 u8PreviousSent = 0;
 static u8 u8RecentData = 0;
 static u8 u8LastData = 0;
 static bool bTurn;
@@ -124,7 +125,7 @@ Promises:
 */
 void UserApp1Initialize(void)
 {   
-    CLEAR_ALL();
+    ClearAll();
     LCDMessage(LINE1_START_ADDR, au8Instruction_1);
     LCDMessage(LINE2_START_ADDR, au8Instruction_2);
     UserApp1_StateMachine = UserApp1SM_Gen_or_Wait;
@@ -157,7 +158,7 @@ void UserApp1RunActiveState(void)
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 /* QoL FUNCTIONS */
-static void LED_OFF(void)
+static void LedOffAll(void)
 {
   LedOff(RED);
   LedOff(ORANGE);
@@ -169,14 +170,14 @@ static void LED_OFF(void)
   LedOff(WHITE);
 }
 
-static void CLEAR_ALL(void)
+static void ClearAll(void)
 {
   LCDCommand(LCD_CLEAR_CMD);
   UserApp1_u32Timeout = 0;
-  LED_OFF();
+  LedOffAll();
 }
 
-static void DISPLAY_EDIT(void)
+static void DisplayEdit(void)
 {
   LCDCommand(LCD_CLEAR_CMD);
   au8GameValChar[0] = 48 + u8GameVal;
@@ -185,14 +186,14 @@ static void DISPLAY_EDIT(void)
   LCDMessage(LINE2_START_ADDR, au8Operations);
 }
 
-static void DISPLAY_WAIT(void)
+static void DisplayWait(void)
 {
   LCDCommand(LCD_CLEAR_CMD);
   LCDMessage(LINE1_START_ADDR, au8Wait_1);
   LCDMessage(LINE2_START_ADDR, au8Wait_2);
 }
 
-static void BUTTON_ACK_ALL(void)
+static void AcknowledgeAll(void)
 {
   if(WasButtonPressed(BUTTON0))
   {
@@ -212,7 +213,7 @@ static void BUTTON_ACK_ALL(void)
   }
 }
 /* LED FUNCTIONS */
-static void LED_DISPLAY_1(void)
+static void LedDisplay1(void)
 {
   static u8 u8Color = 0;
   static u16 u16BlinkCount = 0;
@@ -320,13 +321,13 @@ static void LED_DISPLAY_1(void)
     LedOff(ORANGE);  
     break;
     default: /*All PWM fade*/
-      LED_OFF();
+      LedOffAll();
     break;
     }
   }
 }
 
-static void LED_DISPLAY_2(void)
+static void LedDisplay2(void)
 {
   static u16 u16BlinkCount = 0;
   static bool bLED_BOOL;
@@ -362,7 +363,7 @@ static void LED_DISPLAY_2(void)
   }
 }
 
-static void BUZZER_BLIP_1(void)
+static void BuzzerBlip1(void)
 {
   PWMAudioSetFrequency(BUZZER1, 262);
   if( IsButtonPressed(BUTTON0) || IsButtonPressed(BUTTON1) ||
@@ -377,8 +378,16 @@ static void BUZZER_BLIP_1(void)
 }
 
 /* GAMEPLAY FUNCTIONS */
-
-static void RNG(void)
+/*
+static void RedundancyCheck(void)
+{
+  if(u8GameVal == u8LastData)
+  {
+    
+  }
+}
+*/
+static void RandomNumber(void)
 {
   u8GameVal = G_u32SystemTime1ms % 10;
   if(u8GameVal == 1 || u8GameVal == 0)
@@ -387,67 +396,69 @@ static void RNG(void)
   }
 }
 
-static void OPERATIONS(void)
+static void Operations(void)
 {
   if( bTurn )
   {
-    COUNTDOWN();
+    Countdown();
     if(WasButtonPressed(BUTTON0))
     {
       ButtonAcknowledge(BUTTON0);
-      GV_ADD();
+      GameAdd();
     }
     if(WasButtonPressed(BUTTON1))
     {
       ButtonAcknowledge(BUTTON1);
-      GV_SUB();
+      GameSub();
     }
     if(WasButtonPressed(BUTTON2))
     {
       ButtonAcknowledge(BUTTON2);
-      GV_MULT();
+      GameMult();
     }
     if(WasButtonPressed(BUTTON3))
     {
       ButtonAcknowledge(BUTTON3);
-      GV_DIV();
+      GameDiv();
     }
   }
   else
   {
-    LED_OFF();
+    LedOffAll();
     UserApp1_u32Timeout = 0;
   }
+  //au8OutgoingData[2] = 1;
 }
      
-static void GV_ADD(void)
+static void GameAdd(void)
 {
+  //u8PreviousSent = u8GameVal;
   u8GameVal += 1;
   au8OutgoingData[0] = u8GameVal;
   u8RecentData = u8GameVal;
   bTurn = FALSE;
-  DISPLAY_WAIT();
+  DisplayWait();
 }
      
-static void GV_SUB(void)
+static void GameSub(void)
 {
   u8GameVal -= 3;
   au8OutgoingData[0] = u8GameVal;
   u8RecentData = u8GameVal;
   bTurn = FALSE;
-  DISPLAY_WAIT();
+  DisplayWait();
 }
      
-static void GV_MULT(void)
+static void GameMult(void)
 {
   u8GameVal *= 2;
   au8OutgoingData[0] = u8GameVal;
   u8RecentData = u8GameVal;
   bTurn = FALSE;
-  DISPLAY_WAIT();
+  DisplayWait();
 }
      
-static void GV_DIV(void)
+static void GameDiv(void)
 {
   if(u8GameVal%2)
     u8GameVal--;
@@ -455,14 +466,14 @@ static void GV_DIV(void)
   au8OutgoingData[0] = u8GameVal;
   u8RecentData = u8GameVal;
   bTurn = FALSE;
-  DISPLAY_WAIT();
+  DisplayWait();
 }
 
-static void CHECK_GAME_STATE(void)
+static void CheckGameState(void)
 {
   if(au8IncomingData[1] == 1 || u8GameVal == 1)
   {
-    CLEAR_ALL();
+    ClearAll();
     LedOn(PURPLE);
     LCDMessage(LINE1_START_ADDR, au8Win_1);
     LCDMessage(LINE2_START_ADDR, au8Win_2);
@@ -471,7 +482,7 @@ static void CHECK_GAME_STATE(void)
   }
   if(au8IncomingData[1] == 2 ||  u8GameVal < 0 ||  u8GameVal > 10)
   {
-    CLEAR_ALL();
+    ClearAll();
     LedBlink(RED, LED_4HZ);
     LCDMessage(LINE1_START_ADDR, au8Lose_1);
     LCDMessage(LINE2_START_ADDR, au8Lose_2);
@@ -480,7 +491,7 @@ static void CHECK_GAME_STATE(void)
   }
 }
 
-static void COUNTDOWN(void)
+static void Countdown(void)
 {
   UserApp1_u32Timeout++;
   if(UserApp1_u32Timeout < 500)
@@ -517,14 +528,14 @@ static void COUNTDOWN(void)
   }
   if(UserApp1_u32Timeout == 4000)
   {
-    CLEAR_ALL();
+    ClearAll();
     u8GameVal = 15;
     au8OutgoingData[1] = 2;
   }
 }
 
 /* ANT FUNCTIONS */
-static void ANT_INIT(void)
+static void AntInit(void)
 {
   sChannelInfo.AntChannel          = ANT_CHANNEL_USERAPP;
   sChannelInfo.AntChannelPeriodLo  = ANT_CHANNEL_PERIOD_LO_USERAPP;
@@ -542,9 +553,9 @@ static void ANT_INIT(void)
     sChannelInfo.AntNetworkKey[i] = ANT_DEFAULT_NETWORK_KEY;
   }
 }
-static void ANT_MASTER_CONFIG(void)
+static void AntMasterConfig(void)
 {
-  ANT_INIT();
+  AntInit();
   sChannelInfo.AntChannelType = CHANNEL_TYPE_MASTER;
   if(AntAssignChannel(&sChannelInfo))
   {
@@ -559,7 +570,7 @@ static void ANT_MASTER_CONFIG(void)
     }
     if(UserApp1_u32Timeout == 5000)
     {
-      CLEAR_ALL();
+      ClearAll();
       LCDMessage(LINE1_START_ADDR, au8ANTFailConfig);
       LCDMessage(LINE2_START_ADDR, au8ErrorReset);
       LedOn(RED);
@@ -568,7 +579,7 @@ static void ANT_MASTER_CONFIG(void)
   }
   else
   {
-    CLEAR_ALL();
+    ClearAll();
     LCDMessage(LINE1_START_ADDR, au8ANTFailInit);
     LCDMessage(LINE2_START_ADDR, au8ErrorReset);
     LedOn(RED);
@@ -576,9 +587,9 @@ static void ANT_MASTER_CONFIG(void)
   }
 }
 
-static void ANT_SLAVE_CONFIG(void)
+static void AntSlaveConfig(void)
 {
-  ANT_INIT();
+  AntInit();
   sChannelInfo.AntChannelType = CHANNEL_TYPE_SLAVE;
   if(AntAssignChannel(&sChannelInfo))
   {
@@ -591,7 +602,7 @@ static void ANT_SLAVE_CONFIG(void)
     }
     if(UserApp1_u32Timeout == 5000)
     {
-      CLEAR_ALL();
+      ClearAll();
       LCDMessage(LINE1_START_ADDR, au8ANTFailConfig);
       LCDMessage(LINE2_START_ADDR, au8ErrorReset);
       LedOn(RED);
@@ -600,7 +611,7 @@ static void ANT_SLAVE_CONFIG(void)
   }
   else
   {
-    CLEAR_ALL();
+    ClearAll();
     LCDMessage(LINE1_START_ADDR, au8ANTFailInit);
     LCDMessage(LINE2_START_ADDR, au8ErrorReset);
     LedOn(RED);
@@ -616,27 +627,27 @@ State Machine Function Definitions
 static void UserApp1SM_Gen_or_Wait(void)
 {
   UserApp1_u32Timeout++;
-  LED_DISPLAY_1();
+  LedDisplay1();
   if(WasButtonPressed(BUTTON0))
   {
     ButtonAcknowledge(BUTTON0);
-    CLEAR_ALL();
-    RNG();
+    ClearAll();
+    RandomNumber();
     bTurn = TRUE;
-    DISPLAY_EDIT();
-    ANT_MASTER_CONFIG();
+    DisplayEdit();
+    AntMasterConfig();
   }
   if(WasButtonPressed(BUTTON3))
   {
     ButtonAcknowledge(BUTTON3);
-    CLEAR_ALL();
+    ClearAll();
     bTurn = FALSE;
-    DISPLAY_WAIT();
-    ANT_SLAVE_CONFIG();
+    DisplayWait();
+    AntSlaveConfig();
   }
   if(UserApp1_u32Timeout == 6000000)
   {
-    CLEAR_ALL();
+    ClearAll();
     LedOn(RED);
     LCDMessage(LINE1_START_ADDR, au8Timeout);
     UserApp1_StateMachine = UserApp1SM_Error;
@@ -644,7 +655,7 @@ static void UserApp1SM_Gen_or_Wait(void)
 } /* end UserApp1SM_Gen_or_Wait() */
 
 /*-------------------------------------------------------------------------------------------------------------------*/
-/* Wait for ANT_INIT() */
+/* Wait for AntInit() */
 static void UserApp1SM_ANT_ChannelAssign(void)
 {
   if(AntRadioStatusChannel(ANT_CHANNEL_USERAPP) == ANT_CONFIGURED)
@@ -655,21 +666,21 @@ static void UserApp1SM_ANT_ChannelAssign(void)
   UserApp1_u32Timeout++;
   if(UserApp1_u32Timeout == 5000)
   {
-    CLEAR_ALL();
+    ClearAll();
     LCDMessage(LINE1_START_ADDR, au8ANTFailConfig);
     LCDMessage(LINE2_START_ADDR, au8ErrorReset);
     LedOn(RED);
     UserApp1_StateMachine = UserApp1SM_Error;
   }
-  BUTTON_ACK_ALL();
+  AcknowledgeAll();
 } /* end UserApp1SM_ChannelAssign() */
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Wait for ANT Config */
 static void UserApp1SM_Game_State(void)
 {
-  OPERATIONS();
-  BUZZER_BLIP_1();
+  Operations();
+  BuzzerBlip1();
   if( AntReadAppMessageBuffer() )
   {
     for(u8 i = 0; i < ANT_NETWORK_NUMBER_BYTES; i++)
@@ -681,12 +692,17 @@ static void UserApp1SM_Game_State(void)
     {
       if(bTurn)
       {
-        DISPLAY_EDIT();
+        DisplayEdit();
         u8RecentData = au8IncomingData[0];
         u8LastData = au8IncomingData[0];
       }
       else
       {
+        /*if(au8IncomingData[2] == 1)
+        {
+          u8LastData = -1;
+        }*/
+        
         if(au8IncomingData[0] == u8RecentData)
         {
           u8LastData = au8IncomingData[0];
@@ -700,11 +716,12 @@ static void UserApp1SM_Game_State(void)
         {
           //Don't update LastData
         }
-        BUTTON_ACK_ALL();
+        AcknowledgeAll();
       }
     }
     AntQueueBroadcastMessage(ANT_CHANNEL_USERAPP, au8OutgoingData);
-    CHECK_GAME_STATE();
+    //au8OutgoingData[2] = 0;
+    CheckGameState();
   }
   
 } /* end UserApp1SM_Idle() */

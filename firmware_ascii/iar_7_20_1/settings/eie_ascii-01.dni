@@ -9,7 +9,7 @@ TriggerName=main
 LimitSize=0
 ByteLimit=50
 [DebugChecksum]
-Checksum=-409640090
+Checksum=486668604
 [Exceptions]
 StopOnUncaught=_ 0
 StopOnThrow=_ 0
@@ -24,9 +24,6 @@ CStepIntDis=_ 0
 TraceBufferSize=0x00010000
 TraceStallIfFIFOFull=0x00000000
 TracePortSize=0x00000000
-[Trace1]
-Enabled=0
-ShowSource=1
 [Disassemble mode]
 mode=0
 [Breakpoints2]
@@ -45,7 +42,7 @@ SuppressDialog=0
 Enabled=0
 [DriverProfiling]
 Enabled=0
-Mode=1
+Mode=0
 Graph=0
 Symbiont=0
 Exclusions=
