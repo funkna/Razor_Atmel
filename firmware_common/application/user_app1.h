@@ -19,6 +19,7 @@ Header file for user_app1.c
 
 #ifndef __USER_APP1_H
 #define __USER_APP1_H
+#endif
 
 /**********************************************************************************************************************
 Type Definitions
@@ -49,6 +50,10 @@ void UserApp1RunActiveState(void);
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Private functions                                                                                                  */
 /*--------------------------------------------------------------------------------------------------------------------*/
+void UserApp1MorseShort(LedNumberType eLED_);
+void UserApp1MorseLong(LedNumberType eLED_);
+void UserApp1MorsePauseShort(void);
+void UserApp1MorsePauseLong(void);
 
 
 /***********************************************************************************************************************
@@ -58,8 +63,6 @@ static void UserApp1SM_Idle(void);
 
 static void UserApp1SM_Error(void);         
 
-
-#endif /* __USER_APP1_H */
 
 
 /*--------------------------------------------------------------------------------------------------------------------*/

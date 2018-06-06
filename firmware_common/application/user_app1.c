@@ -43,7 +43,7 @@ All Global variable names shall start with "G_UserApp1"
 /* New variables */
 volatile u32 G_u32UserApp1Flags;                       /* Global state flags */
 
-
+static u32 u32Time = 0;
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Existing variables (defined in other files -- should all contain the "extern" keyword) */
 extern volatile u32 G_u32SystemFlags;                  /* From main.c */
@@ -87,6 +87,7 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
+  LedOff(GREEN);
  
   /* If good initialization, set state to Idle */
   if( 1 )
@@ -126,7 +127,42 @@ void UserApp1RunActiveState(void)
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Private functions                                                                                                  */
 /*--------------------------------------------------------------------------------------------------------------------*/
-
+void UserApp1MorseShort(LedNumberType eLED_)
+{
+  while(u32Time <= 80000)
+  {
+    u32Time++;
+    LedOn(eLED_);
+  }
+  u32Time = 0;
+  LedOff(eLED_);
+}
+void UserApp1MorseLong(LedNumberType eLED_)
+{
+  while(u32Time <= 400000)
+  {
+    u32Time++;
+    LedOn(eLED_);
+  }
+  u32Time = 0;
+  LedOff(eLED_);
+}
+void UserApp1MorsePauseShort(void)
+{
+  while(u32Time <= 1000000)
+  {
+    u32Time++;
+  }
+  u32Time = 0;
+}
+void UserApp1MorsePauseLong(void)
+{
+  while(u32Time <= 5000000)
+  {
+    u32Time++;
+  }
+  u32Time = 0;
+}
 
 /**********************************************************************************************************************
 State Machine Function Definitions
@@ -138,7 +174,6 @@ static void UserApp1SM_Idle(void)
 {
 
 } /* end UserApp1SM_Idle() */
-    
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Handle an error */
