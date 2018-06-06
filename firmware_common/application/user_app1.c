@@ -149,7 +149,7 @@ void UserApp1MorseLong(LedNumberType eLED_)
 }
 void UserApp1MorsePauseShort(void)
 {
-  while(u32Time <= 1000000)
+  while(u32Time <= 800000)
   {
     u32Time++;
   }
@@ -157,13 +157,260 @@ void UserApp1MorsePauseShort(void)
 }
 void UserApp1MorsePauseLong(void)
 {
-  while(u32Time <= 5000000)
+  while(u32Time <= 4000000)
   {
     u32Time++;
   }
   u32Time = 0;
 }
 
+void UserApp1MorseLetter(LedNumberType eLED_, u8 u8Letter)
+{
+  if(u8Letter == 'A')
+  {
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'B')
+  {
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseLong();
+
+  }
+  if(u8Letter == 'C')
+  {
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'D')
+  {
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'E')
+  {
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  
+  if(u8Letter == 'F')
+  {
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'G')
+  {
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'H')
+  {
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'I')
+  {
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'J')
+  {
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'K')
+  {
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'L')
+  {
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'M')
+  {
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'N')
+  {
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'O')
+  {
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'P')
+  {
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'Q')
+  {
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseLong                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  ();
+  }
+  if(u8Letter == 'R')
+  {
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'S')
+  {
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'T')
+  {
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'U')
+  {
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'V')
+  {
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'W')
+  {
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'X')
+  {
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'Y')
+  {
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'Z')
+  {
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseLong();
+  }
+}
 /**********************************************************************************************************************
 State Machine Function Definitions
 **********************************************************************************************************************/
@@ -172,7 +419,14 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
-
+  UserApp1MorseLetter(WHITE, 'M');
+  UserApp1MorseLetter(PURPLE, 'O');
+  UserApp1MorseLetter(BLUE, 'B');
+  UserApp1MorseLetter(CYAN, 'Y');
+  UserApp1MorseLetter(GREEN, 'D');
+  UserApp1MorseLetter(YELLOW, 'I');
+  UserApp1MorseLetter(ORANGE, 'C');
+  UserApp1MorseLetter(RED, 'K');  
 } /* end UserApp1SM_Idle() */
 
 /*-------------------------------------------------------------------------------------------------------------------*/
