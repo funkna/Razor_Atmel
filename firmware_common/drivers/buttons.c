@@ -23,7 +23,7 @@ void ButtonAcknowledge(u32 u32Button_)
 Clears the New Press state of a button -- generally always called after WasButtonPressed() returns TRUE.
 
 bool IsButtonHeld(u32 u32Button_, u32 u32ButtonHeldTime_)
-Returns TRUE if a button has been held for u32ButtonHeldTime_ time in milliseconds.
+Returns TRUE if a button has been held for u32ButtonHeldTime_ time in milliseconds.0
 
 Protected:
 void ButtonInitialize(void)

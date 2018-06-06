@@ -60,7 +60,6 @@ Variable names shall start with "UserApp1_" and be declared as static.
 static fnCode_type UserApp1_StateMachine;            /* The state machine function pointer */
 //static u32 UserApp1_u32Timeout;                      /* Timeout counter used across states */
 
-
 /**********************************************************************************************************************
 Function Definitions
 **********************************************************************************************************************/
@@ -166,14 +165,14 @@ void UserApp1MorsePauseLong(void)
 
 void UserApp1MorseLetter(LedNumberType eLED_, u8 u8Letter)
 {
-  if(u8Letter == 'A')
+  if(u8Letter == 'A') // * -
   {
     UserApp1MorseShort(eLED_);
     UserApp1MorsePauseShort();
     UserApp1MorseLong(eLED_);
     UserApp1MorsePauseLong();
   }
-  if(u8Letter == 'B')
+  if(u8Letter == 'B') // - * * *
   {
     UserApp1MorseLong(eLED_);
     UserApp1MorsePauseShort();
@@ -185,7 +184,7 @@ void UserApp1MorseLetter(LedNumberType eLED_, u8 u8Letter)
     UserApp1MorsePauseLong();
 
   }
-  if(u8Letter == 'C')
+  if(u8Letter == 'C') // - * - *
   {
     UserApp1MorseLong(eLED_);
     UserApp1MorsePauseShort();
@@ -196,7 +195,7 @@ void UserApp1MorseLetter(LedNumberType eLED_, u8 u8Letter)
     UserApp1MorseShort(eLED_);
     UserApp1MorsePauseLong();
   }
-  if(u8Letter == 'D')
+  if(u8Letter == 'D') // - * *
   {
     UserApp1MorseLong(eLED_);
     UserApp1MorsePauseShort();
@@ -205,13 +204,13 @@ void UserApp1MorseLetter(LedNumberType eLED_, u8 u8Letter)
     UserApp1MorseShort(eLED_);
     UserApp1MorsePauseLong();
   }
-  if(u8Letter == 'E')
+  if(u8Letter == 'E') // *
   {
     UserApp1MorseShort(eLED_);
     UserApp1MorsePauseLong();
   }
   
-  if(u8Letter == 'F')
+  if(u8Letter == 'F') // * * - *
   {
     UserApp1MorseShort(eLED_);
     UserApp1MorsePauseShort();
@@ -222,7 +221,7 @@ void UserApp1MorseLetter(LedNumberType eLED_, u8 u8Letter)
     UserApp1MorseShort(eLED_);
     UserApp1MorsePauseLong();
   }
-  if(u8Letter == 'G')
+  if(u8Letter == 'G') // - - *
   {
     UserApp1MorseLong(eLED_);
     UserApp1MorsePauseShort();
@@ -231,7 +230,7 @@ void UserApp1MorseLetter(LedNumberType eLED_, u8 u8Letter)
     UserApp1MorseShort(eLED_);
     UserApp1MorsePauseLong();
   }
-  if(u8Letter == 'H')
+  if(u8Letter == 'H') // * * * *
   {
     UserApp1MorseShort(eLED_);
     UserApp1MorsePauseShort();
@@ -242,60 +241,17 @@ void UserApp1MorseLetter(LedNumberType eLED_, u8 u8Letter)
     UserApp1MorseShort(eLED_);
     UserApp1MorsePauseLong();
   }
-  if(u8Letter == 'I')
+  if(u8Letter == 'I') // * *
   {
     UserApp1MorseShort(eLED_);
     UserApp1MorsePauseShort();
     UserApp1MorseShort(eLED_);
     UserApp1MorsePauseLong();
   }
-  if(u8Letter == 'J')
+  if(u8Letter == 'J') // * - - -
   {
     UserApp1MorseShort(eLED_);
     UserApp1MorsePauseShort();
-    UserApp1MorseLong(eLED_);
-    UserApp1MorsePauseShort();
-    UserApp1MorseLong(eLED_);
-    UserApp1MorsePauseShort();
-    UserApp1MorseLong(eLED_);
-    UserApp1MorsePauseLong();
-  }
-  if(u8Letter == 'K')
-  {
-    UserApp1MorseLong(eLED_);
-    UserApp1MorsePauseShort();
-    UserApp1MorseShort(eLED_);
-    UserApp1MorsePauseShort();
-    UserApp1MorseLong(eLED_);
-    UserApp1MorsePauseLong();
-  }
-  if(u8Letter == 'L')
-  {
-    UserApp1MorseShort(eLED_);
-    UserApp1MorsePauseShort();
-    UserApp1MorseLong(eLED_);
-    UserApp1MorsePauseShort();
-    UserApp1MorseShort(eLED_);
-    UserApp1MorsePauseShort();
-    UserApp1MorseShort(eLED_);
-    UserApp1MorsePauseLong();
-  }
-  if(u8Letter == 'M')
-  {
-    UserApp1MorseLong(eLED_);
-    UserApp1MorsePauseShort();
-    UserApp1MorseLong(eLED_);
-    UserApp1MorsePauseLong();
-  }
-  if(u8Letter == 'N')
-  {
-    UserApp1MorseLong(eLED_);
-    UserApp1MorsePauseShort();
-    UserApp1MorseShort(eLED_);
-    UserApp1MorsePauseLong();
-  }
-  if(u8Letter == 'O')
-  {
     UserApp1MorseLong(eLED_);
     UserApp1MorsePauseShort();
     UserApp1MorseLong(eLED_);
@@ -303,7 +259,50 @@ void UserApp1MorseLetter(LedNumberType eLED_, u8 u8Letter)
     UserApp1MorseLong(eLED_);
     UserApp1MorsePauseLong();
   }
-  if(u8Letter == 'P')
+  if(u8Letter == 'K') // - * -
+  {
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'L') // * - * *
+  {
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'M') // - -
+  {
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'N') // - *
+  {
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'O') // - - -
+  {
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'P') // * - - *
   {
     UserApp1MorseShort(eLED_);
     UserApp1MorsePauseShort();
@@ -314,18 +313,18 @@ void UserApp1MorseLetter(LedNumberType eLED_, u8 u8Letter)
     UserApp1MorseShort(eLED_);
     UserApp1MorsePauseLong();
   }
-  if(u8Letter == 'Q')
+  if(u8Letter == 'Q') // - - * -
   {
     UserApp1MorseLong(eLED_);
     UserApp1MorsePauseShort();
     UserApp1MorseLong(eLED_);
     UserApp1MorsePauseShort();
-    UserApp1MorseLong(eLED_);
+    UserApp1MorseShort(eLED_);
     UserApp1MorsePauseShort();
     UserApp1MorseLong(eLED_);
     UserApp1MorsePauseLong                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  ();
   }
-  if(u8Letter == 'R')
+  if(u8Letter == 'R') // * - *
   {
     UserApp1MorseShort(eLED_);
     UserApp1MorsePauseShort();
@@ -334,7 +333,7 @@ void UserApp1MorseLetter(LedNumberType eLED_, u8 u8Letter)
     UserApp1MorseShort(eLED_);
     UserApp1MorsePauseLong();
   }
-  if(u8Letter == 'S')
+  if(u8Letter == 'S') // * * *
   {
     UserApp1MorseShort(eLED_);
     UserApp1MorsePauseShort();
@@ -343,24 +342,13 @@ void UserApp1MorseLetter(LedNumberType eLED_, u8 u8Letter)
     UserApp1MorseShort(eLED_);
     UserApp1MorsePauseLong();
   }
-  if(u8Letter == 'T')
+  if(u8Letter == 'T') // -
   {
     UserApp1MorseLong(eLED_);
     UserApp1MorsePauseLong();
   }
-  if(u8Letter == 'U')
+  if(u8Letter == 'U') // * * -
   {
-    UserApp1MorseShort(eLED_);
-    UserApp1MorsePauseShort();
-    UserApp1MorseShort(eLED_);
-    UserApp1MorsePauseShort();
-    UserApp1MorseLong(eLED_);
-    UserApp1MorsePauseLong();
-  }
-  if(u8Letter == 'V')
-  {
-    UserApp1MorseShort(eLED_);
-    UserApp1MorsePauseShort();
     UserApp1MorseShort(eLED_);
     UserApp1MorsePauseShort();
     UserApp1MorseShort(eLED_);
@@ -368,18 +356,9 @@ void UserApp1MorseLetter(LedNumberType eLED_, u8 u8Letter)
     UserApp1MorseLong(eLED_);
     UserApp1MorsePauseLong();
   }
-  if(u8Letter == 'W')
+  if(u8Letter == 'V') // * * * -
   {
     UserApp1MorseShort(eLED_);
-    UserApp1MorsePauseShort();
-    UserApp1MorseLong(eLED_);
-    UserApp1MorsePauseShort();
-    UserApp1MorseLong(eLED_);
-    UserApp1MorsePauseLong();
-  }
-  if(u8Letter == 'X')
-  {
-    UserApp1MorseLong(eLED_);
     UserApp1MorsePauseShort();
     UserApp1MorseShort(eLED_);
     UserApp1MorsePauseShort();
@@ -388,7 +367,27 @@ void UserApp1MorseLetter(LedNumberType eLED_, u8 u8Letter)
     UserApp1MorseLong(eLED_);
     UserApp1MorsePauseLong();
   }
-  if(u8Letter == 'Y')
+  if(u8Letter == 'W') // * - -
+  {
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'X') // - * * -
+  {
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseShort(eLED_);
+    UserApp1MorsePauseShort();
+    UserApp1MorseLong(eLED_);
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == 'Y') // - * - -
   {
     UserApp1MorseLong(eLED_);
     UserApp1MorsePauseShort();
@@ -399,7 +398,7 @@ void UserApp1MorseLetter(LedNumberType eLED_, u8 u8Letter)
     UserApp1MorseLong(eLED_);
     UserApp1MorsePauseLong();
   }
-  if(u8Letter == 'Z')
+  if(u8Letter == 'Z') // - - * *
   {
     UserApp1MorseLong(eLED_);
     UserApp1MorsePauseShort();
@@ -410,23 +409,63 @@ void UserApp1MorseLetter(LedNumberType eLED_, u8 u8Letter)
     UserApp1MorseShort(eLED_);
     UserApp1MorsePauseLong();
   }
+  if(u8Letter == ' ') // SPACE
+  {
+    UserApp1MorsePauseLong();
+  }
+  if(u8Letter == '.') // For END of words
+  {
+    UserApp1MorsePauseShort();
+  }
+}
+
+void UserApp1MorsePhrase(u8* au8Array)
+{
+  UserApp1MorseLetter(WHITE, au8Array[0]);
+  UserApp1MorseLetter(PURPLE, au8Array[1]);
+  UserApp1MorseLetter(BLUE, au8Array[2]);
+  UserApp1MorseLetter(CYAN, au8Array[3]);
+  UserApp1MorseLetter(GREEN, au8Array[4]);
+  UserApp1MorseLetter(YELLOW, au8Array[5]);
+  UserApp1MorseLetter(ORANGE, au8Array[6]);
+  UserApp1MorseLetter(RED, au8Array[7]);  
 }
 /**********************************************************************************************************************
 State Machine Function Definitions
 **********************************************************************************************************************/
+/* - - PHRASES FOR MORSE - - */
+/* Fill to 8 elements, if unused, fill with a space (long pause) or period (short pause)*/
+static u8* au8PhraseA = "PHRASE A";
+static u8* au8PhraseB = "PHRASE B";
+static u8* au8PhraseC = "PHRASE C";
+static u8* au8PhraseD = "PHRASE D";
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Wait for ??? */
+
+
 static void UserApp1SM_Idle(void)
 {
-  UserApp1MorseLetter(WHITE, 'M');
-  UserApp1MorseLetter(PURPLE, 'O');
-  UserApp1MorseLetter(BLUE, 'B');
-  UserApp1MorseLetter(CYAN, 'Y');
-  UserApp1MorseLetter(GREEN, 'D');
-  UserApp1MorseLetter(YELLOW, 'I');
-  UserApp1MorseLetter(ORANGE, 'C');
-  UserApp1MorseLetter(RED, 'K');  
+  if(WasButtonPressed(BUTTON0))
+  {
+    UserApp1MorsePhrase(au8PhraseA);
+    ButtonAcknowledge(BUTTON0);
+  }
+  if(WasButtonPressed(BUTTON1))
+  {
+    UserApp1MorsePhrase(au8PhraseB); 
+    ButtonAcknowledge(BUTTON1);
+  }
+  if(WasButtonPressed(BUTTON2))
+  {
+    UserApp1MorsePhrase(au8PhraseC);
+    ButtonAcknowledge(BUTTON2);
+  }
+  if(WasButtonPressed(BUTTON3))
+  {
+    UserApp1MorsePhrase(au8PhraseD); 
+    ButtonAcknowledge(BUTTON3);
+  }
 } /* end UserApp1SM_Idle() */
 
 /*-------------------------------------------------------------------------------------------------------------------*/

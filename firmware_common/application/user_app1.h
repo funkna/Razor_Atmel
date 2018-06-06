@@ -57,6 +57,7 @@ void UserApp1MorsePauseLong(void);
 
 void UserApp1MorseLetter(LedNumberType eLED_, u8 u8Letter);
 
+void UserApp1MorsePhrase(u8* au8Array);
 
 /***********************************************************************************************************************
 State Machine Declarations
