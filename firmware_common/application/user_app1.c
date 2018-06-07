@@ -435,10 +435,10 @@ State Machine Function Definitions
 **********************************************************************************************************************/
 /* - - PHRASES FOR MORSE - - */
 /* Fill to 8 elements, if unused, fill with a space (long pause) or period (short pause)*/
-static u8* au8PhraseA = "PHRASE A";
-static u8* au8PhraseB = "PHRASE B";
-static u8* au8PhraseC = "PHRASE C";
-static u8* au8PhraseD = "PHRASE D";
+static u8* au8PhraseA = "MONGOLIA";
+static u8* au8PhraseB = "PORTUGAL";
+static u8* au8PhraseC = "SCOTLAND";
+static u8* au8PhraseD = "CAMBODIA";
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Wait for ??? */
