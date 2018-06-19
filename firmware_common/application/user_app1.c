@@ -87,7 +87,11 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
- 
+  LedOff(LCD_RED);
+  LCDCommand(LCD_CLEAR_CMD);
+  for(u32 i = 0; i < 10000; i++);
+  LCDMessage(LINE1_START_ADDR, "I try all things, I");
+  LCDMessage(LINE2_START_ADDR, "achieve what I can.");
   /* If good initialization, set state to Idle */
   if( 1 )
   {
